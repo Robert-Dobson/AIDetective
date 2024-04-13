@@ -56,6 +56,11 @@ func (s *Server) RunServer() {
 		s.mutex.Lock()
 		defer s.mutex.Unlock()
 
+		if s.game != nil {
+			session.CloseWithMsg([]byte("Game already started"))
+			return
+		}
+
 		role := GetRole(role_name)
 
 		if role == Detective {
