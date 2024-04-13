@@ -75,6 +75,9 @@ func (s Server) RunServer() {
 		if data.Type == "beginGame" {
 			response, _ := json.Marshal(data)
 			s.m.Broadcast(response)
+			users := getUsersFromSessionUserMap(s.SessionUserMap)
+			game := NewGame(users)
+			s.game = &game
 		} else if data.Type == "beginRound" {
 			response, _ := json.Marshal(data)
 			s.m.Broadcast(response)
@@ -86,4 +89,12 @@ func (s Server) RunServer() {
 	})
 
 	http.ListenAndServe(":5000", nil)
+}
+
+func getUsersFromSessionUserMap(m map[*melody.Session]*User) []User {
+	users := []User{}
+	for _, user := range m {
+		users = append(users, *user)
+	}
+	return users
 }

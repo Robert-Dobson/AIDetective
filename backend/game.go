@@ -1,11 +1,30 @@
 package backend
 
+import "github.com/google/uuid"
+
+var HowManyAI = map[int]int{
+	1: 2,
+	2: 3,
+	3: 4,
+}
+
 type Game struct {
 	Users []User
 }
 
 func NewGame(users []User) Game {
-	// Reset/Initalize game, add AI roles to Users
+	// Initalize game, add AI roles to Users
+	numOfHuman := len(users)
+	numOfAI, ok := HowManyAI[numOfHuman]
+	if !ok {
+		numOfAI = 2 * numOfHuman
+	}
+
+	for i := 0; i < numOfAI; i++ {
+		// TODO: Make custom AI names
+		users = append(users, CreateUser("AI", uuid.New().String(), AI))
+	}
+
 	return Game{
 		Users: users,
 	}
