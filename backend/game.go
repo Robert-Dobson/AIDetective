@@ -70,8 +70,9 @@ func (g *Game) CalculateLeaderboard() {
 }
 
 func (g *Game) sanitizeResponse(resp string) string {
-	// make responses lowercase and remove trailing period
+	// make responses lowercase and remove trailing punctuation
 	respLower := strings.ToLower(resp)
 	respNoPeriod := strings.TrimSuffix(respLower, ".")
-	return respNoPeriod
+	respNoExclamation := strings.TrimSuffix(respNoPeriod, "!")
+	return respNoExclamation
 }
