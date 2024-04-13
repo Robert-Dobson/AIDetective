@@ -63,19 +63,13 @@ func (g *Game) BeginRound() {
 }
 
 func (g *Game) ProcessResponse(player Player, response string) {
-	if player.Eliminated() {
-		return
-	}
-
-	g.PlayerToResponse[player] = sanitizeResponse(response)
-
-	if len(g.PlayerToResponse) >= g.GetNumberOfActivePlayers() {
-		g.FinalizeResponses()
+	if !player.Eliminated() {
+		g.PlayerToResponse[player] = sanitizeResponse(response)
 	}
 }
 
-func (g *Game) FinalizeResponses() {
-	// Once all responses have been given, send them back to the users
+func (g *Game) EveryoneResponded() bool {
+	return len(g.PlayerToResponse) >= g.GetNumberOfActivePlayers()
 }
 
 func (g *Game) ProcessElimination(UUID string) {

@@ -32,6 +32,15 @@ type RespondData struct {
 	Response string `json:"response"`
 }
 
+type Response struct {
+	UUID     string `json:"uuid`
+	Response string `json:"response"`
+}
+
+type AllResponseData struct {
+	Responses []Response
+}
+
 func NewServer() *Server {
 	return &Server{
 		m:              melody.New(),
@@ -144,6 +153,9 @@ func (s *Server) RunServer() {
 
 			// Process human response
 			s.game.ProcessResponse(user, response.Response)
+			if s.game.EveryoneResponded() {
+				s.BroadcastResponses()
+			}
 
 		case "eliminate":
 			// Parse elimination data
@@ -195,6 +207,28 @@ func (s *Server) RunServer() {
 	if err := http.ListenAndServe(":5000", nil); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func (s *Server) BroadcastResponses() {
+
+	// Once all responses have been given, send them back to the users
+	var allResponses AllResponseData
+	for player, response := range s.game.PlayerToResponse {
+		allResponses.Responses = append(allResponses.Responses, Response{
+			UUID:     player.UUID(),
+			Response: response,
+		})
+	}
+
+	responseData, _ := json.Marshal(allResponses)
+	data := MessageData{
+		Type: "finishResponses",
+		Data: responseData,
+	}
+
+	response, _ := json.Marshal(data)
+	s.m.Broadcast(response)
+	log.Printf("Broadcasted finishResponses to all players")
 }
 
 func getUsersFromSessionUserMap(m map[*melody.Session]*User) []User {
