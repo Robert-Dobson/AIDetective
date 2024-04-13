@@ -50,6 +50,7 @@ func (s *Server) RunServer() {
 
 		if name == "" || UUID == "" || roleName == "" {
 			session.CloseWithMsg([]byte("Request Fields are missing"))
+			log.Printf("Refused connection as request fields are missing")
 			return
 		}
 
@@ -58,6 +59,7 @@ func (s *Server) RunServer() {
 
 		if s.game != nil {
 			session.CloseWithMsg([]byte("Game already started"))
+			log.Printf("Refused connection as game already started")
 			return
 		}
 
@@ -66,6 +68,7 @@ func (s *Server) RunServer() {
 		if role == Detective {
 			if s.isDetectiveIn {
 				session.CloseWithMsg([]byte("Detective already in game"))
+				log.Printf("Refused connection as Detective already in game")
 				return
 			} else {
 				s.isDetectiveIn = true
@@ -74,6 +77,7 @@ func (s *Server) RunServer() {
 
 		user := CreateUser(name, UUID, role)
 		s.sessionUserMap[&melody.Session{}] = &user
+		log.Printf("Added user %s to lobby", name)
 	})
 
 	// Receive messages from clients
@@ -94,13 +98,16 @@ func (s *Server) RunServer() {
 			// Initialize game
 			game := NewGame(len(s.sessionUserMap))
 			s.game = game
+			log.Printf("Initialized game with %d players", len(s.sessionUserMap))
 
 			// Broadcast beginGame to all players
 			response, _ := json.Marshal(data)
 			s.m.Broadcast(response)
+			log.Printf("Broadcasted beginGame to all players")
 		case "beginRound":
 			response, _ := json.Marshal(data)
 			s.m.Broadcast(response)
+			log.Printf("Broadcasted beginRound to all players")
 		case "respond":
 			// TODO
 		case "eliminate":
