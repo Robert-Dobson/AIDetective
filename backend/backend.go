@@ -2,14 +2,17 @@ package backend
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
+	"sync"
 
 	"github.com/olahol/melody"
 )
 
 type Server struct {
 	m              *melody.Melody
-	SessionUserMap map[*melody.Session]*User
+	mutex          sync.Mutex
+	sessionUserMap map[*melody.Session]*User
 	game           *Game
 }
 
@@ -21,7 +24,7 @@ type MessageData struct {
 func NewServer() Server {
 	return Server{
 		m:              melody.New(),
-		SessionUserMap: map[*melody.Session]*User{},
+		sessionUserMap: map[*melody.Session]*User{},
 		game:           nil,
 	}
 }
@@ -46,15 +49,21 @@ func (s Server) RunServer() {
 		role := GetRole(role_name)
 
 		user := CreateUser(name, UUID, role)
-		s.SessionUserMap[&melody.Session{}] = &user
+		s.sessionUserMap[&melody.Session{}] = &user
 	})
 
 	// Receive messages from clients
 	s.m.HandleMessage(func(session *melody.Session, msg []byte) {
 		var data MessageData
 		if err := json.Unmarshal(msg, &data); err != nil {
+			log.Printf("%w", err)
 			return
 		}
+
+		s.mutex.Lock()
+		defer s.mutex.Unlock()
+
+		log.Printf("Receieved message: %s", data.Type)
 
 		switch data.Type {
 		case "beginGame":
