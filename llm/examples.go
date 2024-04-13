@@ -1,5 +1,7 @@
 package llm
 
+import "fmt"
+
 func examples() {
 
 	llm := New()
@@ -9,5 +11,5 @@ func examples() {
 	// ask ai a question
 	ai := NewAI(names[0], "Pretend you are a very rude person.")
 	prompt := "How many days are there in a year?"
-	llm.AskAI(prompt, ai)
+	llm.AskAI(prompt, ai, func(ai AI, resp string) { fmt.Println(resp) })
 }
