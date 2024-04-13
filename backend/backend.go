@@ -11,6 +11,11 @@ type Server struct {
 	SessionUserMap map[*melody.Session]*User
 }
 
+type MessageData struct {
+	Type string      `json:"type"`
+	Data interface{} `json:"message"`
+}
+
 func NewServer() Server {
 	return Server{
 		m:              melody.New(),
@@ -41,9 +46,22 @@ func (s Server) RunServer() {
 		s.SessionUserMap[&melody.Session{}] = &user
 	})
 
-	// Broadcast messages to all clients
+	// Receive messages from clients
 	s.m.HandleMessage(func(session *melody.Session, msg []byte) {
-		s.m.Broadcast(msg)
+		var data MessageData
+		if err := json.Unmarshal(msg, &data); err != nil {
+			log.Fatal(err)
+		}
+
+		if data.Type == "beginGame" {
+			s.m.Broadcast(data)
+		} else if data.Type == "beginRound" {
+			s.m.Broadcast(data)
+		} else if data.Type == "respond" {
+			// TODO
+		} else if data.Type == "eliminate" {
+			// TODO
+		}
 	})
 
 	http.ListenAndServe(":5000", nil)
