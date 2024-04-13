@@ -46,9 +46,9 @@ func (s *Server) RunServer() {
 	s.m.HandleConnect(func(session *melody.Session) {
 		name := session.Request.URL.Query().Get("name")
 		UUID := session.Request.URL.Query().Get("UUID")
-		role_name := session.Request.URL.Query().Get("role")
+		roleName := session.Request.URL.Query().Get("role")
 
-		if name == "" || UUID == "" || role_name == "" {
+		if name == "" || UUID == "" || roleName == "" {
 			session.CloseWithMsg([]byte("Request Fields are missing"))
 			return
 		}
@@ -61,7 +61,7 @@ func (s *Server) RunServer() {
 			return
 		}
 
-		role := GetRole(role_name)
+		role := GetRole(roleName)
 
 		if role == Detective {
 			if s.isDetectiveIn {
@@ -91,11 +91,13 @@ func (s *Server) RunServer() {
 
 		switch data.Type {
 		case "beginGame":
+			// Initialize game
+			game := NewGame(len(s.sessionUserMap))
+			s.game = game
+
+			// Broadcast beginGame to all players
 			response, _ := json.Marshal(data)
 			s.m.Broadcast(response)
-			users := getUsersFromSessionUserMap(s.sessionUserMap)
-			game := NewGame(users)
-			s.game = game
 		case "beginRound":
 			response, _ := json.Marshal(data)
 			s.m.Broadcast(response)
@@ -107,12 +109,4 @@ func (s *Server) RunServer() {
 	})
 
 	http.ListenAndServe(":5000", nil)
-}
-
-func getUsersFromSessionUserMap(m map[*melody.Session]*User) []User {
-	users := []User{}
-	for _, user := range m {
-		users = append(users, *user)
-	}
-	return users
 }

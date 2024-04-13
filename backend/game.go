@@ -1,7 +1,5 @@
 package backend
 
-import "github.com/google/uuid"
-
 var howManyAI = map[int]int{
 	1: 2,
 	2: 3,
@@ -9,25 +7,20 @@ var howManyAI = map[int]int{
 }
 
 type Game struct {
-	users []User
 }
 
-func NewGame(users []User) *Game {
+func NewGame(numOfHumans int) *Game {
 	// Initalize game, add AI roles to Users
-	numOfHuman := len(users)
-	numOfAI, ok := howManyAI[numOfHuman]
+	numOfAI, ok := howManyAI[numOfHumans]
 	if !ok {
-		numOfAI = 2 * numOfHuman
+		numOfAI = 2 * numOfHumans
 	}
 
 	for i := 0; i < numOfAI; i++ {
-		// TODO: Make custom AI names
-		users = append(users, CreateUser("AI", uuid.New().String(), AI))
+		// TODO: Create AIs
 	}
 
-	return &Game{
-		users: users,
-	}
+	return &Game{}
 }
 
 func (g *Game) BeginRound() {
