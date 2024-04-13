@@ -49,7 +49,7 @@ func (s *Server) RunServer() {
 	// Initialize user on websocket connection
 	s.m.HandleConnect(func(session *melody.Session) {
 		name := session.Request.URL.Query().Get("name")
-		UUID := session.Request.URL.Query().Get("UUID")
+		UUID := session.Request.URL.Query().Get("uuid")
 		roleName := session.Request.URL.Query().Get("role")
 
 		if name == "" || UUID == "" || roleName == "" {
