@@ -15,20 +15,33 @@ type Player interface {
 }
 
 type Game struct {
+	UUIDToPlayers map[string]Player
 }
 
-func NewGame(numOfHumans int) *Game {
-	// Initalize game, add AI roles to Users
-	numOfAI, ok := howManyAI[numOfHumans]
-	if !ok {
-		numOfAI = 2 * numOfHumans
+func NewGame(users []User) *Game {
+	g := Game{UUIDToPlayers: map[string]Player{}}
+
+	// Add Players
+	for _, user := range users {
+		g.AddPlayer(&user)
 	}
 
-	for i := 0; i < numOfAI; i++ {
+	// Add AIs
+	numOfHumans := len(users)
+	numOfAIs, ok := howManyAI[numOfHumans]
+	if !ok {
+		numOfAIs = 2 * numOfHumans
+	}
+
+	for i := 0; i < numOfAIs; i++ {
 		// TODO: Create AIs
 	}
 
-	return &Game{}
+	return &g
+}
+
+func (g *Game) AddPlayer(user *User) {
+	g.UUIDToPlayers[user.UUID()] = user
 }
 
 func (g *Game) BeginRound() {
@@ -45,8 +58,9 @@ func (g *Game) FinalizeResponses() {
 	// Once all responses have been given, send them back to the users
 }
 
-func (g *Game) ProcessElimination() {
+func (g *Game) ProcessElimination(UUID string) {
 	// Process elimination of user, do we go onto the next round
+
 }
 
 func (g *Game) CalculateLeaderboard() {

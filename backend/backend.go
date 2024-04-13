@@ -1,5 +1,7 @@
 package backend
 
+// TODO: Handle what happens if the user disconnects at any time
+
 import (
 	"encoding/json"
 	"log"
@@ -20,6 +22,10 @@ type Server struct {
 type MessageData struct {
 	Type string          `json:"type"`
 	Data json.RawMessage `json:"data"`
+}
+
+type EliminateData struct {
+	UUID string `json:"UUID"`
 }
 
 func NewServer() *Server {
@@ -96,9 +102,10 @@ func (s *Server) RunServer() {
 		switch data.Type {
 		case "beginGame":
 			// Initialize game
-			game := NewGame(len(s.sessionUserMap))
+			users := getUsersFromSessionUserMap(s.sessionUserMap)
+			game := NewGame(users)
 			s.game = game
-			log.Printf("Initialized game with %d players", len(s.sessionUserMap))
+			log.Printf("Started game with %d players", len(users))
 
 			// Broadcast beginGame to all players
 			response, _ := json.Marshal(data)
@@ -111,9 +118,30 @@ func (s *Server) RunServer() {
 		case "respond":
 			// TODO
 		case "eliminate":
-			// TODO
+			// Parse elimination data
+			var data EliminateData
+			if err := json.Unmarshal(msg, &data); err != nil {
+				log.Printf("%w", err)
+				return
+			}
+
+			if s.game == nil {
+				log.Printf("Game not initialized")
+				return
+			}
+
+			// Process Elimination
+			s.game.ProcessElimination(data.UUID)
 		}
 	})
 
 	http.ListenAndServe(":5000", nil)
+}
+
+func getUsersFromSessionUserMap(m map[*melody.Session]*User) []User {
+	users := []User{}
+	for _, user := range m {
+		users = append(users, *user)
+	}
+	return users
 }

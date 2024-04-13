@@ -7,20 +7,38 @@ type Role int
 const (
 	Detective Role = iota
 	Human
-	AI
 )
 
+// User implements Player
 type User struct {
-	Name string
-	UUID string
-	role Role
+	name       string
+	uuid       string
+	role       Role
+	eliminated bool
+}
+
+func (u *User) UUID() string {
+	return u.uuid
+}
+
+func (u *User) Name() string {
+	return u.name
+}
+
+func (u *User) Eliminated() bool {
+	return u.eliminated
+}
+
+func (u *User) Eliminate() {
+	// TODO: Implement
 }
 
 func CreateUser(name string, UUID string, role Role) User {
 	return User{
-		Name: name,
-		UUID: UUID,
-		role: role,
+		name:       name,
+		uuid:       UUID,
+		role:       role,
+		eliminated: false,
 	}
 }
 
@@ -30,8 +48,6 @@ func GetRole(role string) Role {
 		return Detective
 	case "human":
 		return Human
-	case "ai":
-		return AI
 	default:
 		// Always default to human
 		return Human
