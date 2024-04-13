@@ -39,9 +39,7 @@ func NewServer() *Server {
 
 func (s *Server) RunServer() {
 	// Serve the frontend
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "frontend/chattest.html")
-	})
+	http.Handle("/", http.FileServer(http.Dir("frontend")))
 
 	// Upgrade to websocket
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
@@ -135,7 +133,9 @@ func (s *Server) RunServer() {
 		}
 	})
 
-	http.ListenAndServe(":5000", nil)
+	if err := http.ListenAndServe(":5000", nil); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func getUsersFromSessionUserMap(m map[*melody.Session]*User) []User {
