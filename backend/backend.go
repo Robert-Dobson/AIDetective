@@ -110,6 +110,8 @@ func (s *Server) RunServer() {
 			s.m.Broadcast(response)
 			log.Printf("Broadcasted beginGame to all players")
 		case "beginRound":
+			// TODO: Ensure another player is in the game
+
 			response, _ := json.Marshal(data)
 			s.m.Broadcast(response)
 			log.Printf("Broadcasted beginRound to all players")
@@ -130,6 +132,31 @@ func (s *Server) RunServer() {
 
 			// Process Elimination
 			s.game.ProcessElimination(data.UUID)
+		}
+	})
+
+	// Handle disconnection
+	s.m.HandleDisconnect(func(session *melody.Session) {
+		s.mutex.Lock()
+		defer s.mutex.Unlock()
+
+		// Remove user from sessionUserMap
+		user := s.sessionUserMap[session]
+		delete(s.sessionUserMap, session)
+
+		// If user is detective, set isDetectiveIn to false
+		if user.role == Detective {
+			s.isDetectiveIn = false
+
+			if s.game != nil {
+				// Detective disconnected, end game
+				// TODO: Send End Game message
+			}
+		} else {
+			// If game is initialized, eliminate user silently
+			if s.game != nil {
+				s.game.UUIDToPlayers[user.UUID()].Eliminate()
+			}
 		}
 	})
 
