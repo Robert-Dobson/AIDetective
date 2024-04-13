@@ -65,10 +65,9 @@ func (g *Game) EveryoneResponded() bool {
 func (g *Game) ProcessElimination(UUID string) {
 	// Process elimination of user, do we go onto the next round
 	player, ok := g.UUIDToPlayers[UUID]
-	if !ok {
-		//TODO: Handle error
+	if ok {
+		player.Eliminate()
 	}
-	player.Eliminate()
 
 	// Check if the game is over
 	numActivePlayers := g.GetNumberOfActivePlayers()

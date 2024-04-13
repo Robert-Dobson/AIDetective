@@ -138,7 +138,7 @@ func (s *Server) RunServer() {
 			log.Printf("Broadcasted beginGame to all players")
 
 		case "beginRound":
-			if len(getUsersFromSessionUserMap(s.sessionUserMap)) == 0 {
+			if len(getHumansFromSessionUserMap(s.sessionUserMap)) == 0 {
 				log.Printf("No humans in game")
 				// TODO: Return message to Frontend
 				return
