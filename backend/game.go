@@ -56,6 +56,10 @@ func (g *Game) BeginRound() {
 }
 
 func (g *Game) ProcessResponse(player Player, response string) {
+	if player.Eliminated() {
+		return
+	}
+
 	g.PlayerToResponse[player] = sanitizeResponse(response)
 
 	if len(g.PlayerToResponse) >= g.GetNumberOfActivePlayers() {
