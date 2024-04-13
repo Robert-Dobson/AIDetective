@@ -169,32 +169,11 @@ func (s *Server) RunServer() {
 		defer s.mutex.Unlock()
 
 		// Remove user from sessionUserMap
-		user := s.sessionUserMap[session]
-		delete(s.sessionUserMap, session)
-
-		// If user is detective, set isDetectiveIn to false
-		if user.role == Detective {
-			s.isDetectiveIn = false
-
-			if s.game != nil {
-				// Detective disconnected, end game
-				// TODO: Send End Game message
-			}
-		} else {
-			// If game is initialized, eliminate user silently
-			if s.game != nil {
-				s.game.UUIDToPlayers[user.UUID()].Eliminate()
-			}
+		user, ok := s.sessionUserMap[session]
+		if !ok {
+			log.Println("Disconnected user without session")
+			return
 		}
-	})
-
-	// Handle disconnection
-	s.m.HandleDisconnect(func(session *melody.Session) {
-		s.mutex.Lock()
-		defer s.mutex.Unlock()
-
-		// Remove user from sessionUserMap
-		user := s.sessionUserMap[session]
 		delete(s.sessionUserMap, session)
 
 		// If user is detective, set isDetectiveIn to false
