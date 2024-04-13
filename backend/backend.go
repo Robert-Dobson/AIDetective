@@ -31,7 +31,7 @@ type StartRoundData struct {
 }
 
 type EliminateData struct {
-	UUID string `json:"UUID"`
+	UUID string `json:"uuid"`
 }
 
 type RespondData struct {
@@ -39,7 +39,7 @@ type RespondData struct {
 }
 
 type Response struct {
-	UUID     string `json:"uuid`
+	UUID     string `json:"uuid"`
 	Response string `json:"response"`
 }
 
@@ -138,7 +138,12 @@ func (s *Server) RunServer() {
 			log.Printf("Broadcasted beginGame to all players")
 
 		case "beginRound":
-			// TODO: Ensure another player is in the game
+			if len(getUsersFromSessionUserMap(s.sessionUserMap)) == 0 {
+				log.Printf("No humans in game")
+				// TODO: Return message to Frontend
+				return
+			}
+
 			// Broadcast beginRound to all players
 			response, _ := json.Marshal(data)
 			s.m.Broadcast(response)
