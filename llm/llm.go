@@ -39,7 +39,7 @@ func (a *AI) Eliminated() bool {
 }
 
 func (a *AI) Eliminate() {
-	a.eliminate = true
+	a.eliminated = true
 }
 
 type LLM struct {
