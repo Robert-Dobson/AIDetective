@@ -17,11 +17,15 @@ type Player interface {
 }
 
 type Game struct {
-	UUIDToPlayers map[string]Player
+	UUIDToPlayers    map[string]Player
+	PlayerToResponse map[Player]string
 }
 
 func NewGame(users []User) *Game {
-	g := Game{UUIDToPlayers: map[string]Player{}}
+	g := Game{
+		UUIDToPlayers:    map[string]Player{},
+		PlayerToResponse: map[Player]string{},
+	}
 
 	// Add Players
 	for _, user := range users {
@@ -48,12 +52,15 @@ func (g *Game) AddPlayer(user *User) {
 
 func (g *Game) BeginRound() {
 	// Get AI responses to prompt
-
+	g.PlayerToResponse = map[Player]string{}
 }
 
-func (g *Game) ProcessResponse() {
-	// Process responses from users
+func (g *Game) ProcessResponse(player Player, response string) {
+	g.PlayerToResponse[player] = sanitizeResponse(response)
 
+	if len(g.PlayerToResponse) >= g.GetNumberOfActivePlayers() {
+		g.FinalizeResponses()
+	}
 }
 
 func (g *Game) FinalizeResponses() {
@@ -109,7 +116,7 @@ func (g *Game) CalculateLeaderboard() {
 	// Calculate the leaderboard
 }
 
-func (g *Game) sanitizeResponse(resp string) string {
+func sanitizeResponse(resp string) string {
 	// make responses lowercase and remove trailing punctuation
 	respLower := strings.ToLower(resp)
 	respNoPeriod := strings.TrimSuffix(respLower, ".")

@@ -28,6 +28,10 @@ type EliminateData struct {
 	UUID string `json:"UUID"`
 }
 
+type RespondData struct {
+	Response string `json:"response"`
+}
+
 func NewServer() *Server {
 	return &Server{
 		m:              melody.New(),
@@ -80,7 +84,7 @@ func (s *Server) RunServer() {
 		}
 
 		user := CreateUser(name, UUID, role)
-		s.sessionUserMap[&melody.Session{}] = &user
+		s.sessionUserMap[session] = &user
 		log.Printf("Added user %s to lobby", name)
 	})
 
@@ -88,7 +92,7 @@ func (s *Server) RunServer() {
 	s.m.HandleMessage(func(session *melody.Session, msg []byte) {
 		var data MessageData
 		if err := json.Unmarshal(msg, &data); err != nil {
-			log.Printf("%w", err)
+			log.Printf("%v", err)
 			return
 		}
 
@@ -109,17 +113,41 @@ func (s *Server) RunServer() {
 			response, _ := json.Marshal(data)
 			s.m.Broadcast(response)
 			log.Printf("Broadcasted beginGame to all players")
+
 		case "beginRound":
+			// TODO: start the AIs
+
+			// Broadcast beginRound to all players
 			response, _ := json.Marshal(data)
 			s.m.Broadcast(response)
 			log.Printf("Broadcasted beginRound to all players")
+
 		case "respond":
-			// TODO
+			// Parse response data
+			var response RespondData
+			if err := json.Unmarshal(data.Data, &response); err != nil {
+				log.Printf("%v", err)
+				return
+			}
+
+			if s.game == nil {
+				log.Printf("Game not initialized")
+				return
+			}
+
+			user, ok := s.sessionUserMap[session]
+			if !ok {
+				log.Printf("User not found")
+			}
+
+			// Process human response
+			s.game.ProcessResponse(user, response.Response)
+
 		case "eliminate":
 			// Parse elimination data
-			var data EliminateData
-			if err := json.Unmarshal(msg, &data); err != nil {
-				log.Printf("%w", err)
+			var elimination EliminateData
+			if err := json.Unmarshal(data.Data, &elimination); err != nil {
+				log.Printf("%v", err)
 				return
 			}
 
@@ -129,7 +157,7 @@ func (s *Server) RunServer() {
 			}
 
 			// Process Elimination
-			s.game.ProcessElimination(data.UUID)
+			s.game.ProcessElimination(elimination.UUID)
 		}
 	})
 
