@@ -1,6 +1,9 @@
 package backend
 
-import "strings"
+import (
+	"ai-detective/llm"
+	"strings"
+)
 
 var howManyAI = map[int]int{
 	1: 5,
@@ -19,12 +22,14 @@ type Player interface {
 type Game struct {
 	UUIDToPlayers    map[string]Player
 	PlayerToResponse map[Player]string
+	llm              llm.LLM
 }
 
 func NewGame(users []User) *Game {
 	g := Game{
 		UUIDToPlayers:    map[string]Player{},
 		PlayerToResponse: map[Player]string{},
+		llm:              llm.New(),
 	}
 
 	// Add Players
@@ -39,15 +44,17 @@ func NewGame(users []User) *Game {
 		numOfAIs = 3 * numOfHumans
 	}
 
-	for i := 0; i < numOfAIs; i++ {
-		// TODO: Create AIs
+	ais := g.llm.MakeAIs(numOfAIs)
+
+	for _, ai := range ais {
+		g.AddPlayer(&ai)
 	}
 
 	return &g
 }
 
-func (g *Game) AddPlayer(user *User) {
-	g.UUIDToPlayers[user.UUID()] = user
+func (g *Game) AddPlayer(player Player) {
+	g.UUIDToPlayers[player.UUID()] = player
 }
 
 func (g *Game) BeginRound() {

@@ -3,6 +3,7 @@ package llm
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"os"
 	"slices"
 
@@ -83,7 +84,7 @@ func (l LLM) getName() string {
 	return response
 }
 
-func (l LLM) GetNames(n int) []string {
+func (l LLM) getNames(n int) []string {
 	var names []string
 
 	for len(names) < n {
@@ -94,8 +95,31 @@ func (l LLM) GetNames(n int) []string {
 		}
 
 	}
-
 	return names
+}
+
+func (l LLM) getPersonalities(n int) []string {
+	var pers []string
+
+	for _, i := range rand.Perm(n) {
+		pers = append(pers, personalities[i])
+	}
+
+	return pers
+}
+
+func (l LLM) MakeAIs(n int) []AI {
+	names := l.getNames(n)
+	personalities := l.getPersonalities(n)
+	var ais []AI
+
+	for i := 0; i < len(names); i++ {
+		ai := NewAI(names[i], personalities[i])
+		ais = append(ais, ai)
+	}
+
+	return ais
+
 }
 
 func (l LLM) AskAI(prompt string, ai AI, callback func(ai AI, resp string)) {
