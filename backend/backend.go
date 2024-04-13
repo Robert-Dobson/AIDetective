@@ -2,27 +2,30 @@ package backend
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
+	"sync"
 
 	"github.com/olahol/melody"
 )
 
 type Server struct {
 	m              *melody.Melody
-	SessionUserMap map[*melody.Session]*User
+	mutex          sync.Mutex
+	sessionUserMap map[*melody.Session]*User
 	game           *Game
 	isDetectiveIn  bool
 }
 
 type MessageData struct {
-	Type string      `json:"type"`
-	Data interface{} `json:"message"`
+	Type string          `json:"type"`
+	Data json.RawMessage `json:"data"`
 }
 
 func NewServer() Server {
 	return Server{
 		m:              melody.New(),
-		SessionUserMap: map[*melody.Session]*User{},
+		sessionUserMap: map[*melody.Session]*User{},
 		game:           nil,
 		isDetectiveIn:  false,
 	}
@@ -62,28 +65,35 @@ func (s Server) RunServer() {
 		}
 
 		user := CreateUser(name, UUID, role)
-		s.SessionUserMap[&melody.Session{}] = &user
+		s.sessionUserMap[&melody.Session{}] = &user
 	})
 
 	// Receive messages from clients
 	s.m.HandleMessage(func(session *melody.Session, msg []byte) {
 		var data MessageData
 		if err := json.Unmarshal(msg, &data); err != nil {
+			log.Printf("%w", err)
 			return
 		}
 
-		if data.Type == "beginGame" {
+		s.mutex.Lock()
+		defer s.mutex.Unlock()
+
+		log.Printf("Receieved message: %s", data.Type)
+
+		switch data.Type {
+		case "beginGame":
 			response, _ := json.Marshal(data)
 			s.m.Broadcast(response)
-			users := getUsersFromSessionUserMap(s.SessionUserMap)
+			users := getUsersFromSessionUserMap(s.sessionUserMap)
 			game := NewGame(users)
 			s.game = &game
-		} else if data.Type == "beginRound" {
+		case "beginRound":
 			response, _ := json.Marshal(data)
 			s.m.Broadcast(response)
-		} else if data.Type == "respond" {
+		case "respond":
 			// TODO
-		} else if data.Type == "eliminate" {
+		case "eliminate":
 			// TODO
 		}
 	})
