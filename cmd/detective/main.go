@@ -1,14 +1,28 @@
 package main
 
 import (
-	"log"
 	"net/http"
+
+	"github.com/olahol/melody"
 )
 
 func main() {
-	http.Handle("/", http.FileServer(http.Dir("frontend")))
+	m := melody.New()
 
-	if err := http.ListenAndServe(":5714", nil); err != nil {
-		log.Fatal(err)
-	}
+	// Serve the frontend
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "frontend/index.html")
+	})
+
+	// Upgrade to websocket
+	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
+		m.HandleRequest(w, r)
+	})
+
+	// Broadcast messages to all clients
+	m.HandleMessage(func(s *melody.Session, msg []byte) {
+		m.Broadcast(msg)
+	})
+
+	http.ListenAndServe(":5000", nil)
 }
