@@ -39,7 +39,7 @@ func (a *AI) Eliminated() bool {
 }
 
 func (a *AI) Eliminate() {
-	a.eliminated = true
+	a.eliminate = true
 }
 
 type LLM struct {
@@ -98,10 +98,10 @@ func (l LLM) GetNames(n int) []string {
 	return names
 }
 
-func (l LLM) AskAI(prompt string, ai AI) {
+func (l LLM) AskAI(prompt string, ai AI, callback func(ai AI, resp string)) {
 	userPrompt := fmt.Sprintf("%s \n Keeping your new personality in mind, answer the following question: \n  %s", ai.personality, prompt)
 	resp, _ := l.getResponse("", userPrompt)
-	placeholder(ai, resp)
+	callback(ai, resp)
 }
 
 // REPLACE WITH REAL CODE
