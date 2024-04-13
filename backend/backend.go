@@ -120,14 +120,11 @@ func (s *Server) RunServer() {
 		switch data.Type {
 		case "beginGame":
 			// Initialize game
-			users := getUsersFromSessionUserMap(s.sessionUserMap)
+			users := getHumansFromSessionUserMap(s.sessionUserMap)
 
 			// Create AIs
 			numOfHumans := len(users)
-			numOfAIs, ok := howManyAI[numOfHumans]
-			if !ok {
-				numOfAIs = 3 * numOfHumans
-			}
+			numOfAIs := numberOfAIs(numOfHumans)
 			ais := s.llm.MakeAIs(numOfAIs)
 
 			// Initialize game with players
@@ -186,6 +183,12 @@ func (s *Server) RunServer() {
 			user, ok := s.sessionUserMap[session]
 			if !ok {
 				log.Printf("User not found")
+				return
+			}
+
+			if user.role == Detective {
+				log.Printf("Detective cannot respond")
+				return
 			}
 
 			// Process human response
@@ -268,10 +271,12 @@ func (s *Server) BroadcastResponses() {
 	log.Printf("Broadcasted finishResponses to all players")
 }
 
-func getUsersFromSessionUserMap(m map[*melody.Session]*User) []User {
+func getHumansFromSessionUserMap(m map[*melody.Session]*User) []User {
 	users := []User{}
 	for _, user := range m {
-		users = append(users, *user)
+		if user.role == Human {
+			users = append(users, *user)
+		}
 	}
 	return users
 }

@@ -118,3 +118,12 @@ func sanitizeResponse(resp string) string {
 	respNoExclamation := strings.TrimSuffix(respNoPeriod, "!")
 	return respNoExclamation
 }
+
+func numberOfAIs(numberOfHumans int) int {
+	numOfAIs, ok := howManyAI[numberOfHumans]
+	if !ok {
+		numOfAIs = 3 * numberOfHumans
+	}
+
+	return numOfAIs
+}
