@@ -2,20 +2,20 @@ package backend
 
 import "github.com/google/uuid"
 
-var HowManyAI = map[int]int{
+var howManyAI = map[int]int{
 	1: 2,
 	2: 3,
 	3: 4,
 }
 
 type Game struct {
-	Users []User
+	users []User
 }
 
 func NewGame(users []User) *Game {
 	// Initalize game, add AI roles to Users
 	numOfHuman := len(users)
-	numOfAI, ok := HowManyAI[numOfHuman]
+	numOfAI, ok := howManyAI[numOfHuman]
 	if !ok {
 		numOfAI = 2 * numOfHuman
 	}
@@ -26,7 +26,7 @@ func NewGame(users []User) *Game {
 	}
 
 	return &Game{
-		Users: users,
+		users: users,
 	}
 }
 
