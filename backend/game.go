@@ -22,14 +22,12 @@ type Player interface {
 type Game struct {
 	UUIDToPlayers    map[string]Player
 	PlayerToResponse map[Player]string
-	llm              llm.LLM
 }
 
-func NewGame(users []User) *Game {
+func NewGame(users []User, ais []llm.AI) *Game {
 	g := Game{
 		UUIDToPlayers:    map[string]Player{},
 		PlayerToResponse: map[Player]string{},
-		llm:              llm.New(),
 	}
 
 	// Add Players
@@ -38,14 +36,6 @@ func NewGame(users []User) *Game {
 	}
 
 	// Add AIs
-	numOfHumans := len(users)
-	numOfAIs, ok := howManyAI[numOfHumans]
-	if !ok {
-		numOfAIs = 3 * numOfHumans
-	}
-
-	ais := g.llm.MakeAIs(numOfAIs)
-
 	for _, ai := range ais {
 		g.AddPlayer(&ai)
 	}
@@ -57,8 +47,8 @@ func (g *Game) AddPlayer(player Player) {
 	g.UUIDToPlayers[player.UUID()] = player
 }
 
-func (g *Game) BeginRound() {
-	// Get AI responses to prompt
+func (g *Game) BeginRound(prompt string) {
+	// Reset responses
 	g.PlayerToResponse = map[Player]string{}
 }
 

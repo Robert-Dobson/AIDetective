@@ -3,6 +3,7 @@ package backend
 // TODO: Handle what happens if the user disconnects at any time
 
 import (
+	"ai-detective/llm"
 	"encoding/json"
 	"log"
 	"net/http"
@@ -17,11 +18,16 @@ type Server struct {
 	sessionUserMap map[*melody.Session]*User
 	game           *Game
 	isDetectiveIn  bool
+	llm            llm.LLM
 }
 
 type MessageData struct {
 	Type string          `json:"type"`
 	Data json.RawMessage `json:"data"`
+}
+
+type StartRoundData struct {
+	Prompt string `json:"prompt"`
 }
 
 type EliminateData struct {
@@ -47,6 +53,7 @@ func NewServer() *Server {
 		sessionUserMap: map[*melody.Session]*User{},
 		game:           nil,
 		isDetectiveIn:  false,
+		llm:            llm.New(),
 	}
 }
 
@@ -114,9 +121,19 @@ func (s *Server) RunServer() {
 		case "beginGame":
 			// Initialize game
 			users := getUsersFromSessionUserMap(s.sessionUserMap)
-			game := NewGame(users)
+
+			// Create AIs
+			numOfHumans := len(users)
+			numOfAIs, ok := howManyAI[numOfHumans]
+			if !ok {
+				numOfAIs = 3 * numOfHumans
+			}
+			ais := s.llm.MakeAIs(numOfAIs)
+
+			// Initialize game with players
+			game := NewGame(users, ais)
 			s.game = game
-			log.Printf("Started game with %d players", len(users))
+			log.Printf("Started game with %d humans and %d AI", len(users), len(ais))
 
 			// Broadcast beginGame to all players
 			response, _ := json.Marshal(data)
@@ -125,13 +142,33 @@ func (s *Server) RunServer() {
 
 		case "beginRound":
 			// TODO: Ensure another player is in the game
-
-			// TODO: start the AIs
-
 			// Broadcast beginRound to all players
 			response, _ := json.Marshal(data)
 			s.m.Broadcast(response)
 			log.Printf("Broadcasted beginRound to all players")
+
+			// Request response from AI
+			var startRoundData StartRoundData
+			if err := json.Unmarshal(data.Data, &startRoundData); err != nil {
+				log.Printf("%v", err)
+				return
+			}
+
+			prompt := startRoundData.Prompt
+
+			for _, player := range s.game.UUIDToPlayers {
+				if ai, ok := player.(*llm.AI); ok {
+					go func() {
+						s.mutex.Lock()
+						defer s.mutex.Unlock()
+						response := s.llm.AskAI(prompt, ai)
+						s.game.ProcessResponse(ai, response)
+						if s.game.EveryoneResponded() {
+							s.BroadcastResponses()
+						}
+					}()
+				}
+			}
 
 		case "respond":
 			// Parse response data

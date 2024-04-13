@@ -122,10 +122,10 @@ func (l LLM) MakeAIs(n int) []AI {
 
 }
 
-func (l LLM) AskAI(prompt string, ai AI, callback func(ai AI, resp string)) {
+func (l LLM) AskAI(prompt string, ai *AI) string {
 	userPrompt := fmt.Sprintf("%s \n Keeping your new personality in mind, answer the following question: \n  %s", ai.personality, prompt)
 	resp, _ := l.getResponse("", userPrompt)
-	callback(ai, resp)
+	return resp
 }
 
 // REPLACE WITH REAL CODE
