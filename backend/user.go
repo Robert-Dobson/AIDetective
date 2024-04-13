@@ -7,6 +7,7 @@ type Role int
 const (
 	Detective Role = iota
 	Human
+	AI
 )
 
 type User struct {
@@ -29,6 +30,8 @@ func GetRole(role string) Role {
 		return Detective
 	case "human":
 		return Human
+	case "ai":
+		return AI
 	default:
 		// Always default to human
 		return Human
