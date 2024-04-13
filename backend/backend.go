@@ -1,6 +1,7 @@
 package backend
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/olahol/melody"
@@ -50,13 +51,15 @@ func (s Server) RunServer() {
 	s.m.HandleMessage(func(session *melody.Session, msg []byte) {
 		var data MessageData
 		if err := json.Unmarshal(msg, &data); err != nil {
-			log.Fatal(err)
+			return
 		}
 
 		if data.Type == "beginGame" {
-			s.m.Broadcast(data)
+			response, _ := json.Marshal(data)
+			s.m.Broadcast(response)
 		} else if data.Type == "beginRound" {
-			s.m.Broadcast(data)
+			response, _ := json.Marshal(data)
+			s.m.Broadcast(response)
 		} else if data.Type == "respond" {
 			// TODO
 		} else if data.Type == "eliminate" {
