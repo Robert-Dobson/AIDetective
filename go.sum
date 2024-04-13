@@ -4,3 +4,5 @@ github.com/gorilla/websocket v1.5.0 h1:PPwGk2jz7EePpoHN/+ClbZu8SPxiqlu12wZP/3sWm
 github.com/gorilla/websocket v1.5.0/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
 github.com/olahol/melody v1.2.0 h1:0w63Xu7fj7aRBaL/Puk+d1nqGQhcmldymZf0ZIMiGt0=
 github.com/olahol/melody v1.2.0/go.mod h1:GgkTl6Y7yWj/HtfD48Q5vLKPVoZOH+Qqgfa7CvJgJM4=
+github.com/sashabaranov/go-openai v1.21.0 h1:isAf3zPSD3VLd0pC2/2Q6ZyRK7jzPAaz+X3rjsviaYQ=
+github.com/sashabaranov/go-openai v1.21.0/go.mod h1:lj5b/K+zjTSFxVLijLSTDZuP7adOgerWeFyZLUhAKRg=
