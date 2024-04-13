@@ -22,8 +22,8 @@ type MessageData struct {
 	Data json.RawMessage `json:"data"`
 }
 
-func NewServer() Server {
-	return Server{
+func NewServer() *Server {
+	return &Server{
 		m:              melody.New(),
 		sessionUserMap: map[*melody.Session]*User{},
 		game:           nil,
@@ -31,7 +31,7 @@ func NewServer() Server {
 	}
 }
 
-func (s Server) RunServer() {
+func (s *Server) RunServer() {
 	// Serve the frontend
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "frontend/chattest.html")
@@ -52,6 +52,9 @@ func (s Server) RunServer() {
 			session.CloseWithMsg([]byte("Request Fields are missing"))
 			return
 		}
+
+		s.mutex.Lock()
+		defer s.mutex.Unlock()
 
 		role := GetRole(role_name)
 
@@ -87,7 +90,7 @@ func (s Server) RunServer() {
 			s.m.Broadcast(response)
 			users := getUsersFromSessionUserMap(s.sessionUserMap)
 			game := NewGame(users)
-			s.game = &game
+			s.game = game
 		case "beginRound":
 			response, _ := json.Marshal(data)
 			s.m.Broadcast(response)
