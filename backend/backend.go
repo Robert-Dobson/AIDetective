@@ -31,7 +31,7 @@ type StartRoundData struct {
 }
 
 type EliminateData struct {
-	UUID string `json:"UUID"`
+	UUID string `json:"uuid"`
 }
 
 type RespondData struct {
@@ -39,7 +39,7 @@ type RespondData struct {
 }
 
 type Response struct {
-	UUID     string `json:"uuid`
+	UUID     string `json:"uuid"`
 	Response string `json:"response"`
 }
 
