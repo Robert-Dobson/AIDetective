@@ -1,5 +1,7 @@
 package backend
 
+import "strings"
+
 var howManyAI = map[int]int{
 	1: 5,
 	2: 7,
@@ -105,4 +107,12 @@ func (g *Game) GetNumberOfActiveHumans() int {
 
 func (g *Game) CalculateLeaderboard() {
 	// Calculate the leaderboard
+}
+
+func (g *Game) sanitizeResponse(resp string) string {
+	// make responses lowercase and remove trailing punctuation
+	respLower := strings.ToLower(resp)
+	respNoPeriod := strings.TrimSuffix(respLower, ".")
+	respNoExclamation := strings.TrimSuffix(respNoPeriod, "!")
+	return respNoExclamation
 }
