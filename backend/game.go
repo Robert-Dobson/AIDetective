@@ -1,5 +1,7 @@
 package backend
 
+import "strings"
+
 var howManyAI = map[int]int{
 	1: 2,
 	2: 3,
@@ -65,4 +67,11 @@ func (g *Game) ProcessElimination(UUID string) {
 
 func (g *Game) CalculateLeaderboard() {
 	// Calculate the leaderboard
+}
+
+func (g *Game) sanitizeResponse(resp string) string {
+	// make responses lowercase and remove trailing period
+	respLower := strings.ToLower(resp)
+	respNoPeriod := strings.TrimSuffix(respLower, ".")
+	return respNoPeriod
 }
