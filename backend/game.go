@@ -6,6 +6,14 @@ var howManyAI = map[int]int{
 	3: 4,
 }
 
+type Player interface {
+	UUID() string
+	Name() string
+
+	Eliminated() bool
+	Eliminate()
+}
+
 type Game struct {
 }
 
