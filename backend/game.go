@@ -4,31 +4,31 @@ type Game struct {
 	Users []User
 }
 
-func BeginGame() Game {
-	// Initialize game, add AI roles to Users
+func NewGame(users []User) Game {
+	// Reset/Initalize game, add AI roles to Users
 	return Game{
-		Users: []User{},
+		Users: users,
 	}
 }
 
-func BeginRound() {
+func (g Game) BeginRound() {
 	// Get AI responses to prompt
 
 }
 
-func ProcessResponse() {
+func (g Game) ProcessResponse() {
 	// Process responses from users
 
 }
 
-func FinalizeResponses() {
+func (g Game) FinalizeResponses() {
 	// Once all responses have been given, send them back to the users
 }
 
-func ProcessElimination() {
+func (g Game) ProcessElimination() {
 	// Process elimination of user, do we go onto the next round
 }
 
-func CalculateLeaderboard() {
+func (g Game) CalculateLeaderboard() {
 	// Calculate the leaderboard
 }

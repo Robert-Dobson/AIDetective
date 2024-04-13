@@ -10,6 +10,7 @@ import (
 type Server struct {
 	m              *melody.Melody
 	SessionUserMap map[*melody.Session]*User
+	game           *Game
 }
 
 type MessageData struct {
@@ -21,6 +22,7 @@ func NewServer() Server {
 	return Server{
 		m:              melody.New(),
 		SessionUserMap: map[*melody.Session]*User{},
+		game:           nil,
 	}
 }
 
