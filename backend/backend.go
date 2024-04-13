@@ -11,6 +11,7 @@ type Server struct {
 	m              *melody.Melody
 	SessionUserMap map[*melody.Session]*User
 	game           *Game
+	isDetectiveIn  bool
 }
 
 type MessageData struct {
@@ -23,6 +24,7 @@ func NewServer() Server {
 		m:              melody.New(),
 		SessionUserMap: map[*melody.Session]*User{},
 		game:           nil,
+		isDetectiveIn:  false,
 	}
 }
 
@@ -39,11 +41,25 @@ func (s Server) RunServer() {
 
 	// Initialize user on websocket connection
 	s.m.HandleConnect(func(session *melody.Session) {
-		// TODO: Handle errors/invalid requests
 		name := session.Request.URL.Query().Get("name")
 		UUID := session.Request.URL.Query().Get("UUID")
 		role_name := session.Request.URL.Query().Get("role")
+
+		if name == "" || UUID == "" || role_name == "" {
+			session.CloseWithMsg([]byte("Request Fields are missing"))
+			return
+		}
+
 		role := GetRole(role_name)
+
+		if role == Detective {
+			if s.isDetectiveIn {
+				session.CloseWithMsg([]byte("Detective already in game"))
+				return
+			} else {
+				s.isDetectiveIn = true
+			}
+		}
 
 		user := CreateUser(name, UUID, role)
 		s.SessionUserMap[&melody.Session{}] = &user
