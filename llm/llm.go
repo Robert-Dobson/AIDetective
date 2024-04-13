@@ -26,6 +26,22 @@ func NewAI(name string, personality string) AI {
 	}
 }
 
+func (a *AI) UUID() string {
+	return a.uuid
+}
+
+func (a *AI) Name() string {
+	return a.name
+}
+
+func (a *AI) Eliminated() bool {
+	return a.eliminated
+}
+
+func (a *AI) Eliminate() {
+	a.eliminate = true
+}
+
 type LLM struct {
 	client *openai.Client
 }
