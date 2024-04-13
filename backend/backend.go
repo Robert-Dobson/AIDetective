@@ -141,7 +141,12 @@ func (s *Server) RunServer() {
 			log.Printf("Broadcasted beginGame to all players")
 
 		case "beginRound":
-			// TODO: Ensure another player is in the game
+			if len(s.sessionUserMap) == 0 {
+				log.Printf("No humans in game")
+				// TODO: Return message to Frontend
+				return
+			}
+
 			// Broadcast beginRound to all players
 			response, _ := json.Marshal(data)
 			s.m.Broadcast(response)
