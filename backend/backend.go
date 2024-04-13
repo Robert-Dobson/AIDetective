@@ -14,8 +14,8 @@ type Server struct {
 }
 
 type MessageData struct {
-	Type string      `json:"type"`
-	Data interface{} `json:"message"`
+	Type string          `json:"type"`
+	Data json.RawMessage `json:"data"`
 }
 
 func NewServer() Server {
@@ -56,15 +56,16 @@ func (s Server) RunServer() {
 			return
 		}
 
-		if data.Type == "beginGame" {
+		switch data.Type {
+		case "beginGame":
 			response, _ := json.Marshal(data)
 			s.m.Broadcast(response)
-		} else if data.Type == "beginRound" {
+		case "beginRound":
 			response, _ := json.Marshal(data)
 			s.m.Broadcast(response)
-		} else if data.Type == "respond" {
+		case "respond":
 			// TODO
-		} else if data.Type == "eliminate" {
+		case "eliminate":
 			// TODO
 		}
 	})
