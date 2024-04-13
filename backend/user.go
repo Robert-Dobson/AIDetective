@@ -30,7 +30,7 @@ func (u *User) Eliminated() bool {
 }
 
 func (u *User) Eliminate() {
-	// TODO: Implement
+	u.eliminated = true
 }
 
 func CreateUser(name string, UUID string, role Role) User {
