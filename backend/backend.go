@@ -132,6 +132,19 @@ func (s *Server) RunServer() {
 		user := CreateUser(name, UUID, role)
 		s.sessionUserMap[session] = &user
 
+		joinData, _ := json.Marshal(struct {
+			humans int `json:"humans"`
+		}{
+			humans: len(getHumansFromSessionUserMap(s.sessionUserMap)),
+		})
+		data := MessageData{
+			Type: "join",
+			Data: joinData,
+		}
+
+		response, _ := json.Marshal(data)
+		s.m.Broadcast(response)
+
 		log.Printf("Added user %s to lobby", name)
 	})
 
@@ -239,6 +252,21 @@ func (s *Server) RunServer() {
 				s.BroadcastMessageAlert("Detective must not give responses")
 				return
 			}
+
+			responseData, _ := json.Marshal(struct {
+				responses int `json:"responses"`
+				players   int `json:"players"`
+			}{
+				responses: len(s.game.PlayerToResponse),
+				players:   len(s.game.UUIDToPlayers),
+			})
+			respondData := MessageData{
+				Type: "respond",
+				Data: responseData,
+			}
+
+			respond, _ := json.Marshal(respondData)
+			s.m.Broadcast(respond)
 
 			// Process human response
 			s.game.ProcessResponse(user, response.Response)
