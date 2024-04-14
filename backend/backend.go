@@ -182,6 +182,8 @@ func (s *Server) RunServer() {
 				return
 			}
 
+			s.game.BeginRound()
+
 			// Broadcast beginRound to all players
 			response, _ := json.Marshal(data)
 			s.m.Broadcast(response)

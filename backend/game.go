@@ -65,7 +65,7 @@ func (g *Game) AddPlayer(player Player) {
 	g.UUIDToPlayers[player.UUID()] = player
 }
 
-func (g *Game) BeginRound(prompt string) {
+func (g *Game) BeginRound() {
 	// Reset responses
 	g.PlayerToResponse = map[Player]string{}
 }
