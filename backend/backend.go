@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"sort"
 	"sync"
 
 	"github.com/olahol/melody"
@@ -46,7 +47,7 @@ type Response struct {
 }
 
 type AllResponseData struct {
-	Responses []Response
+	Responses []Response `json:"responses"`
 }
 
 type StopRoundMessage struct {
@@ -323,6 +324,12 @@ func (s *Server) BroadcastResponses() {
 			Response: response,
 		})
 	}
+
+	sort.Slice(allResponses.Responses, func(i, j int) bool {
+		a := allResponses.Responses[i]
+		b := allResponses.Responses[j]
+		return a.UUID > b.UUID
+	})
 
 	responseData, _ := json.Marshal(allResponses)
 	data := MessageData{

@@ -144,6 +144,10 @@ func numberOfAIs(numberOfHumans int) int {
 
 func (g *Game) GetPlayerInfo(uuid string) PlayerInfo {
 	player := g.UUIDToPlayers[uuid]
-	return PlayerInfo{name: player.Name(), uuid: player.UUID(), isAi: player.IsAi()}
+	return PlayerInfo{
+		name: player.Name(),
+		uuid: player.UUID(),
+		isAi: player.IsAi(),
+	}
 
 }
