@@ -1,7 +1,5 @@
 package backend
 
-// TODO: Handle what happens if the user disconnects at any time
-
 import (
 	"ai-detective/llm"
 	"encoding/json"
