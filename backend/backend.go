@@ -288,7 +288,7 @@ func (s *Server) RunServer() {
 		// Remove user from sessionUserMap
 		user, ok := s.sessionUserMap[session]
 		if !ok {
-			log.Println("Disconnected user without session")
+			log.Printf("Disconnected user without session")
 			return
 		}
 		delete(s.sessionUserMap, session)
@@ -300,13 +300,13 @@ func (s *Server) RunServer() {
 			if s.game != nil {
 				// Detective disconnected, end game
 				s.BroadcastStopGame(HumanWin)
-				log.Println("Detective disconnected, ending game")
+				log.Printf("Detective disconnected, ending game")
 			}
 		} else {
 			// TODO: If game is initialized, eliminate user silently (?)
 			if s.game != nil {
 				s.game.UUIDToPlayers[user.UUID()].Eliminate()
-				log.Println("Player %s left, eliminated silently", user.Name())
+				log.Printf("Player %s left, eliminated silently", user.Name())
 			}
 		}
 	})
