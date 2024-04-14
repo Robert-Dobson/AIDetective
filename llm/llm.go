@@ -3,6 +3,7 @@ package llm
 import (
 	"context"
 	"fmt"
+	"log"
 	"math/rand"
 	"os"
 	"slices"
@@ -82,17 +83,20 @@ func (l LLM) getResponse(systemPrompt string, userPrompt string) (string, error)
 
 }
 
-func (l LLM) getName() string {
+func (l LLM) getName() (string, error) {
 	prompt := "What is your name? Give a response that is an intimidating name for an advanced AI agent. Only include the name in your response. For example: Optimus Prime, Apex AI"
-	response, _ := l.getResponse("", prompt)
-	return response
+
+	return l.getResponse("", prompt)
 }
 
 func (l LLM) getNames(n int) []string {
 	var names []string
 
 	for len(names) < n {
-		name := l.getName()
+		name, err := l.getName()
+		if err != nil {
+			names = append(names, "GPT-3.5 Turbo")
+		}
 
 		if !slices.Contains(names, name) {
 			names = append(names, name)
@@ -106,7 +110,7 @@ func (l LLM) getPersonalities(n int) []string {
 	var pers []string
 
 	for _, i := range rand.Perm(n) {
-		pers = append(pers, personalities[i])
+		pers = append(pers, personalities[i%len(personalities)])
 	}
 
 	return pers
