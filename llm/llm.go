@@ -3,7 +3,6 @@ package llm
 import (
 	"context"
 	"fmt"
-	"log"
 	"math/rand"
 	"os"
 	"slices"
