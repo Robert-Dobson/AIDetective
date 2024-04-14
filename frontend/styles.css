@@ -336,7 +336,15 @@ Response */
 .response {
     display: flex;
     gap: 1.6rem;
+    transition: opacity 500ms, transform 500ms;
+    position: relative;
 }
+
+.response.hidden {
+    opacity: 0;
+    transform: translateY(-1rem);
+}
+
 
 .response__icon,
 .prompt__icon {

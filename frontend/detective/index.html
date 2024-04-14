@@ -259,6 +259,12 @@
                             }, 3000);
                         }, 3000);
                         break;
+                    case "alert":
+                        alert(message.data.message);
+                        if (message.data.message === "No humans are currently in the game, please wait") {
+                            window.location.reload();
+                        }
+                        break;
                     default:
                         console.error("unhandled message", message.type);
                         break;
@@ -322,6 +328,10 @@
                 });
 
                 socket.send(data);
+            });
+
+            socket.addEventListener("close", function(event) {
+                alert(event.reason);
             });
         })();
 

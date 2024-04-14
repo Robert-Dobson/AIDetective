@@ -12,12 +12,12 @@
 
     <style>
         .content {
-            height: 90vh;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             justify-content: space-around;
             align-items: center;
-            padding: 0 3.2rem;
+            padding: 3.2rem;
         }
 
         .logo {
@@ -46,9 +46,83 @@
                 padding: 4.8rem 0;
             }
         }
+
+        .ball-wrapper {
+            position: absolute;
+            top: 35%;
+            transform: translateY(-50%);
+            left: 20rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        @media screen and (max-width: 899px) {
+            .content {
+                height: auto;
+                gap: 6.4rem;
+            }
+            .ball-wrapper {
+                display: none;
+            }
+        }
+
+        .join-label text {
+            fill: hsla(0, 0%, 100%, 75%);
+            font-size: 7.5rem;
+            font-weight: 600;
+            transform: translateY(45rem);
+        }
+
+        .ball {
+            aspect-ratio: 1;
+            flex-shrink: 0;
+            width: 20rem;
+            height: 20rem;
+            border-radius: 50%;
+            box-shadow:
+                inset 0 0 50px hsla(0, 0%, 100%, 80%),
+                inset 20px 0 80px hsla(300, 100%, 50%, 80%),
+                inset -20px 0 80px hsla(180, 100%, 50%, 80%),
+                inset 20px 0 300px hsla(300, 100%, 50%, 80%),
+                inset -20px 0 300px hsla(180, 100%, 50%, 80%),
+                0 0 50px hsla(0, 0%, 100%, 80%),
+                -10px 0 80px hsla(300, 100%, 50%, 80%),
+                10px 0 80px hsla(180, 100%, 50%, 80%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ball img {
+            width: 14rem;
+            height: 14rem;
+        }
     </style>
 </head>
 <body>
+    <div class="ball-wrapper">
+        <!-- <div class="join-label">Scan to Join</div> -->
+        <div class="join-label">
+            <!-- <svg width="150" viewBox="0 0 354 97">
+                <path id="curve" d="M 0 95.6 C 4 89.5 65.5 -1.2 178.6 0 C 289.9 1.2 349.4 90.3 354 97" fill="rgba(0, 0, 0, 0.5)"/>
+                <textPath xlink:href="#curve">
+                    Dangerous Curves Ahead
+                  </textPath>
+            </svg> -->
+            <svg width="250" viewBox="0 0 500 600">
+                <path id="curve" d="M73.2,148.6c4-6.1,65.5-96.8,178.6-95.6c111.3,1.2,170.8,90.3,175.1,97" fill="transparent"/>
+                <text width="500">
+                  <textPath xlink:href="#curve">
+                    Scan to Join
+                  </textPath>
+                </text>
+              </svg>
+        </div>
+        <div class="ball">
+            <img src="/images/qr.svg">
+        </div>
+    </div>
     <div class="content">
         <div class="logo">AI Detective</div>
         <div class="menu card card--glow card--image card--lines">
