@@ -446,7 +446,12 @@ func (s *Server) BroadcastStopGame(roundResult RoundResult) {
 
 func (s *Server) BroadcastMessageAlert(message string) {
 	msg := MessageAlert{Message: message}
-	response, _ := json.Marshal(msg)
+	alertData, _ := json.Marshal(msg)
+	data := MessageData{
+		Type: "alert",
+		Data: alertData,
+	}
+	response, _ := json.Marshal(data)
 	s.m.Broadcast(response)
 	log.Printf("Broadcasted message alert to all players")
 }
