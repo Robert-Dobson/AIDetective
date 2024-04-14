@@ -97,7 +97,7 @@ func (s *Server) RunServer() {
 		roleName := session.Request.URL.Query().Get("role")
 
 		if name == "" || UUID == "" || roleName == "" {
-			session.CloseWithMsg([]byte("Request Fields are missing"))
+			session.CloseWithMsg(melody.FormatCloseMessage(1011, "Request Fields are missing"))
 			log.Printf("Refused connection as request fields are missing")
 			return
 		}
@@ -106,7 +106,7 @@ func (s *Server) RunServer() {
 		defer s.mutex.Unlock()
 
 		if s.game != nil {
-			session.CloseWithMsg([]byte("Game already started"))
+			session.CloseWithMsg(melody.FormatCloseMessage(1011, "Game already started"))
 			log.Printf("Refused connection as game already started")
 			return
 		}
@@ -115,7 +115,7 @@ func (s *Server) RunServer() {
 
 		if role == Detective {
 			if s.isDetectiveIn {
-				session.CloseWithMsg([]byte("Detective already in game"))
+				session.CloseWithMsg(melody.FormatCloseMessage(1011, "Detective already in game"))
 				log.Printf("Refused connection as Detective already in game")
 				return
 			} else {
@@ -124,7 +124,7 @@ func (s *Server) RunServer() {
 		}
 
 		if len(getHumansFromSessionUserMap(s.sessionUserMap)) >= 4 {
-			session.CloseWithMsg([]byte("Too many humans in game"))
+			session.CloseWithMsg(melody.FormatCloseMessage(1011, "Too many humans in game"))
 			log.Printf("Refused connection as too many humans in game")
 			return
 		}
@@ -152,7 +152,7 @@ func (s *Server) RunServer() {
 	s.m.HandleMessage(func(session *melody.Session, msg []byte) {
 		var data MessageData
 		if err := json.Unmarshal(msg, &data); err != nil {
-			session.CloseWithMsg([]byte("Invalid message format"))
+			session.CloseWithMsg(melody.FormatCloseMessage(1011, "Invalid message format"))
 			log.Printf("Invalid message format %v", err)
 			return
 		}
@@ -205,7 +205,7 @@ func (s *Server) RunServer() {
 			// Request response from AI
 			var startRoundData StartRoundData
 			if err := json.Unmarshal(data.Data, &startRoundData); err != nil {
-				session.CloseWithMsg([]byte("Invalid message format"))
+				session.CloseWithMsg(melody.FormatCloseMessage(1011, "Invalid message format"))
 				log.Printf("Invalid message format %v", err)
 				return
 			}
@@ -230,7 +230,7 @@ func (s *Server) RunServer() {
 			// Parse response data
 			var response RespondData
 			if err := json.Unmarshal(data.Data, &response); err != nil {
-				session.CloseWithMsg([]byte("Invalid message format"))
+				session.CloseWithMsg(melody.FormatCloseMessage(1011, "Invalid message format"))
 				log.Printf("Invalid message format %v", err)
 				return
 			}
@@ -278,7 +278,7 @@ func (s *Server) RunServer() {
 			// Parse elimination data
 			var elimination EliminateData
 			if err := json.Unmarshal(data.Data, &elimination); err != nil {
-				session.CloseWithMsg([]byte("Invalid message format"))
+				session.CloseWithMsg(melody.FormatCloseMessage(1011, "Invalid message format"))
 				log.Printf("Invalid message format %v", err)
 				return
 			}
@@ -440,7 +440,7 @@ func (s *Server) BroadcastStopGame(roundResult RoundResult) {
 	// 	return
 	// }
 	// for _, session := range sessions {
-	// 	session.CloseWithMsg([]byte("Game ended"))
+	// 	session.CloseWithMsg\(melody.FormatCloseMessage(1011, "Game ended"))
 	// }
 }
 
