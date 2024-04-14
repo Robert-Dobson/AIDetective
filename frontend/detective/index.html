@@ -97,6 +97,34 @@
         .examples.hidden {
             opacity: 0;
         }
+
+        .response {
+            cursor: pointer;
+        }
+
+        .response__text {
+            transition: color 300ms;
+        }
+
+        .response:hover .response__text {
+            color: transparent;
+        }
+
+        .response__text::before {
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            display: flex;
+            content: "Vote Out";
+            inset: 0;
+            opacity: 0;
+            transition: opacity 300ms;
+            color: var(--text1);
+        }
+
+        .response:hover .response__text::before {
+            opacity: 1;
+        }
     </style>
 </head>
 <body>
@@ -211,7 +239,8 @@
                         hideExamplePrompts();
                         break;
                     case "finishResponses":
-                        showTitle("Responses Finished!");
+                        document.querySelector(".message__input").setAttribute("placeholder", "Awaiting detective's decision...");
+                        showTitle("Vote out the Human");
                         hideExamplePrompts();
 
                         const template = document.getElementById("response-template");

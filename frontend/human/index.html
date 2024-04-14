@@ -122,7 +122,7 @@
         </div>
         <div class="top-bar">
             <form class="message card disabled" id="prompt-form" autocomplete="off">
-                <input class="message__input" type="text" placeholder="Waiting for prompt..." name="prompt">
+                <input class="message__input" type="text" placeholder="Awaiting prompt..." name="prompt">
                 <button type="submit" class="button message__button">
                     <svg width="36" viewBox="0 0 48 48">
                         <path d="M10,12L22,24L10,36" style="fill:none;stroke-width:6px;"/>
@@ -232,6 +232,7 @@
 
                         break;
                     case "stopRound":
+                        document.querySelector(".message__input").setAttribute("placeholder", "Awaiting prompt...");
                         clearResponses()
                         if (message.data.uuid === myUUID) {
                             showTitle("You Were Eliminated");
