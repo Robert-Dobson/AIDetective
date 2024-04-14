@@ -24,6 +24,10 @@ type MessageData struct {
 	Data json.RawMessage `json:"data"`
 }
 
+type MessageAlert struct {
+	Message string `json:"message"`
+}
+
 type StartRoundData struct {
 	Prompt string `json:"prompt"`
 }
@@ -118,8 +122,15 @@ func (s *Server) RunServer() {
 			}
 		}
 
+		if len(getHumansFromSessionUserMap(s.sessionUserMap)) >= 4 {
+			session.CloseWithMsg([]byte("Too many humans in game"))
+			log.Printf("Refused connection as too many humans in game")
+			return
+		}
+
 		user := CreateUser(name, UUID, role)
 		s.sessionUserMap[session] = &user
+
 		log.Printf("Added user %s to lobby", name)
 	})
 
@@ -127,7 +138,8 @@ func (s *Server) RunServer() {
 	s.m.HandleMessage(func(session *melody.Session, msg []byte) {
 		var data MessageData
 		if err := json.Unmarshal(msg, &data); err != nil {
-			log.Printf("%v", err)
+			session.CloseWithMsg([]byte("Invalid message format"))
+			log.Printf("Invalid message format %v", err)
 			return
 		}
 
@@ -143,7 +155,7 @@ func (s *Server) RunServer() {
 
 			if len(users) == 0 {
 				log.Printf("No humans in game")
-				// TODO: Return message to Frontend
+				s.BroadcastMessageAlert("No humans are currently in the game, please wait")
 				return
 			}
 
@@ -165,6 +177,7 @@ func (s *Server) RunServer() {
 		case "beginRound":
 			if s.game == nil {
 				log.Printf("Game not initialized")
+				s.BroadcastMessageAlert("Game not initialized, please start game first")
 				return
 			}
 
@@ -176,7 +189,8 @@ func (s *Server) RunServer() {
 			// Request response from AI
 			var startRoundData StartRoundData
 			if err := json.Unmarshal(data.Data, &startRoundData); err != nil {
-				log.Printf("%v", err)
+				session.CloseWithMsg([]byte("Invalid message format"))
+				log.Printf("Invalid message format %v", err)
 				return
 			}
 
@@ -200,12 +214,14 @@ func (s *Server) RunServer() {
 			// Parse response data
 			var response RespondData
 			if err := json.Unmarshal(data.Data, &response); err != nil {
-				log.Printf("%v", err)
+				session.CloseWithMsg([]byte("Invalid message format"))
+				log.Printf("Invalid message format %v", err)
 				return
 			}
 
 			if s.game == nil {
 				log.Printf("Game not initialized")
+				s.BroadcastMessageAlert("Game not initialized, please start game first")
 				return
 			}
 
@@ -217,6 +233,7 @@ func (s *Server) RunServer() {
 
 			if user.role == Detective {
 				log.Printf("Detective cannot respond")
+				s.BroadcastMessageAlert("Detective must not give responses")
 				return
 			}
 
@@ -230,27 +247,32 @@ func (s *Server) RunServer() {
 			// Parse elimination data
 			var elimination EliminateData
 			if err := json.Unmarshal(data.Data, &elimination); err != nil {
-				log.Printf("%v", err)
+				session.CloseWithMsg([]byte("Invalid message format"))
+				log.Printf("Invalid message format %v", err)
 				return
 			}
 
 			if s.game == nil {
 				log.Printf("Game not initialized")
+				s.BroadcastMessageAlert("Game not initialized, please start game first")
 				return
 			}
 
 			// Process Elimination
 			s.game.ProcessElimination(elimination.UUID)
+			log.Printf("Eliminated player %s", elimination.UUID)
 
 			// Get round result
 			roundResult := s.game.GetRoundResult()
 			if roundResult == Continue {
 				// Send stopRound message
+				log.Printf("Continuing game")
 				s.BroadcastStopRound(s.game.GetPlayerInfo(elimination.UUID))
 				return
 			}
 
 			// End game, someone won
+			log.Printf("Ending Game")
 			s.BroadcastStopGame(roundResult)
 		}
 	})
@@ -275,11 +297,13 @@ func (s *Server) RunServer() {
 			if s.game != nil {
 				// Detective disconnected, end game
 				s.BroadcastStopGame(HumanWin)
+				log.Println("Detective disconnected, ending game")
 			}
 		} else {
 			// TODO: If game is initialized, eliminate user silently (?)
 			if s.game != nil {
 				s.game.UUIDToPlayers[user.UUID()].Eliminate()
+				log.Println("Player %s left, eliminated silently", user.Name())
 			}
 		}
 	})
@@ -372,6 +396,13 @@ func (s *Server) BroadcastStopGame(roundResult RoundResult) {
 	s.isDetectiveIn = false
 	s.sessionUserMap = map[*melody.Session]*User{}
 	s.m.CloseWithMsg([]byte("Game ended"))
+}
+
+func (s *Server) BroadcastMessageAlert(message string) {
+	msg := MessageAlert{Message: message}
+	response, _ := json.Marshal(msg)
+	s.m.Broadcast(response)
+	log.Printf("Broadcasted message alert to all players")
 }
 
 func getHumansFromSessionUserMap(m map[*melody.Session]*User) []User {

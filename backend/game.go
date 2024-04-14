@@ -14,9 +14,10 @@ const (
 )
 
 var howManyAI = map[int]int{
-	1: 3,
-	2: 5,
-	3: 8,
+	1: 5,
+	2: 6,
+	3: 7,
+	4: 8,
 }
 
 type Player interface {
