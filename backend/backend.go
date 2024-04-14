@@ -47,6 +47,14 @@ type AllResponseData struct {
 	Responses []Response
 }
 
+type EndResultMessage struct {
+	UUID         string `json:"uuid"`
+	Name         string `json:"name"`
+	IsAi         bool   `json:"isAi"`
+	NumOfPlayers int    `json:"numOfPlayers"`
+	NumOfHumans  int    `json:"numOfHumans"`
+}
+
 func NewServer() *Server {
 	return &Server{
 		m:              melody.New(),
@@ -225,19 +233,14 @@ func (s *Server) RunServer() {
 
 			// Get round result
 			roundResult := s.game.GetRoundResult()
-			switch roundResult {
-			case DetectiveWin:
-				// leaderboard := s.game.eliminatedPlayers
-				// Send stopGame message
-				return
-			case HumanWin:
-				// leaderboard := s.game.eliminatedPlayers
-				// Send stopGame message
-				return
-			case Continue:
+			if roundResult == Continue {
 				// Send stopRound message
+				s.BroadcastEndRound(s.game.GetPlayerInfo(elimination.UUID))
 				return
 			}
+
+			// End game, someone won
+			s.BroadcastEndGame(roundResult)
 		}
 	})
 
@@ -260,7 +263,7 @@ func (s *Server) RunServer() {
 
 			if s.game != nil {
 				// Detective disconnected, end game
-				// TODO: Send End Game message
+				s.BroadcastEndGame(HumanWin)
 			}
 		} else {
 			// If game is initialized, eliminate user silently
@@ -295,6 +298,33 @@ func (s *Server) BroadcastResponses() {
 	response, _ := json.Marshal(data)
 	s.m.Broadcast(response)
 	log.Printf("Broadcasted finishResponses to all players")
+}
+
+func (s *Server) BroadcastEndRound(eliminatedPlayer PlayerInfo) {
+	numOfPlayers := s.game.GetNumberOfActivePlayers()
+	numOfHumans := s.game.GetNumberOfActiveHumans()
+
+	// Send stopRound message
+	endResultMessage := EndResultMessage{
+		UUID:         eliminatedPlayer.uuid,
+		Name:         eliminatedPlayer.name,
+		IsAi:         eliminatedPlayer.isAi,
+		NumOfPlayers: numOfPlayers,
+		NumOfHumans:  numOfHumans,
+	}
+	endResultData, _ := json.Marshal(endResultMessage)
+	data := MessageData{
+		Type: "stopRound",
+		Data: endResultData,
+	}
+
+	response, _ := json.Marshal(data)
+	s.m.Broadcast(response)
+	log.Printf("Broadcasted stopRound to all players")
+}
+
+func (s *Server) BroadcastEndGame(roundResult RoundResult) {
+	// Send stopGame message
 }
 
 func getHumansFromSessionUserMap(m map[*melody.Session]*User) []User {
