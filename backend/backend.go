@@ -47,12 +47,25 @@ type AllResponseData struct {
 	Responses []Response
 }
 
-type EndResultMessage struct {
+type StopRoundMessage struct {
 	UUID         string `json:"uuid"`
 	Name         string `json:"name"`
 	IsAi         bool   `json:"isAi"`
 	NumOfPlayers int    `json:"numOfPlayers"`
 	NumOfHumans  int    `json:"numOfHumans"`
+}
+
+type EliminatedPlayer struct {
+	UUID string `json:"uuid"`
+	Name string `json:"name"`
+	IsAi bool   `json:"isAi"`
+}
+
+type StopGameMessage struct {
+	NumOfPlayers      int                `json:"numOfPlayers"`
+	NumOfHumans       int                `json:"numOfHumans"`
+	DetectiveWin      bool               `json:"didDetectiveWin"`
+	EliminatedPlayers []EliminatedPlayer `json:"eliminatedPlayers"`
 }
 
 func NewServer() *Server {
@@ -235,12 +248,12 @@ func (s *Server) RunServer() {
 			roundResult := s.game.GetRoundResult()
 			if roundResult == Continue {
 				// Send stopRound message
-				s.BroadcastEndRound(s.game.GetPlayerInfo(elimination.UUID))
+				s.BroadcastStopRound(s.game.GetPlayerInfo(elimination.UUID))
 				return
 			}
 
 			// End game, someone won
-			s.BroadcastEndGame(roundResult)
+			s.BroadcastStopGame(roundResult)
 		}
 	})
 
@@ -263,10 +276,10 @@ func (s *Server) RunServer() {
 
 			if s.game != nil {
 				// Detective disconnected, end game
-				s.BroadcastEndGame(HumanWin)
+				s.BroadcastStopGame(HumanWin)
 			}
 		} else {
-			// If game is initialized, eliminate user silently
+			// TODO: If game is initialized, eliminate user silently (?)
 			if s.game != nil {
 				s.game.UUIDToPlayers[user.UUID()].Eliminate()
 			}
@@ -300,22 +313,22 @@ func (s *Server) BroadcastResponses() {
 	log.Printf("Broadcasted finishResponses to all players")
 }
 
-func (s *Server) BroadcastEndRound(eliminatedPlayer PlayerInfo) {
+func (s *Server) BroadcastStopRound(eliminatedPlayer PlayerInfo) {
 	numOfPlayers := s.game.GetNumberOfActivePlayers()
 	numOfHumans := s.game.GetNumberOfActiveHumans()
 
 	// Send stopRound message
-	endResultMessage := EndResultMessage{
+	stopResultMessage := StopRoundMessage{
 		UUID:         eliminatedPlayer.uuid,
 		Name:         eliminatedPlayer.name,
 		IsAi:         eliminatedPlayer.isAi,
 		NumOfPlayers: numOfPlayers,
 		NumOfHumans:  numOfHumans,
 	}
-	endResultData, _ := json.Marshal(endResultMessage)
+	stopResultData, _ := json.Marshal(stopResultMessage)
 	data := MessageData{
 		Type: "stopRound",
-		Data: endResultData,
+		Data: stopResultData,
 	}
 
 	response, _ := json.Marshal(data)
@@ -323,8 +336,44 @@ func (s *Server) BroadcastEndRound(eliminatedPlayer PlayerInfo) {
 	log.Printf("Broadcasted stopRound to all players")
 }
 
-func (s *Server) BroadcastEndGame(roundResult RoundResult) {
+func (s *Server) BroadcastStopGame(roundResult RoundResult) {
+	numOfPlayers := s.game.GetNumberOfActivePlayers()
+	numOfHumans := s.game.GetNumberOfActiveHumans()
+	detectiveWin := roundResult == DetectiveWin
+	eliminatedPlayers := s.game.eliminatedPlayers
+
+	// Process eliminatedPlayers
+	eliminatedPlayersInfo := []EliminatedPlayer{}
+	for _, player := range eliminatedPlayers {
+		eliminatedPlayersInfo = append(eliminatedPlayersInfo, EliminatedPlayer{
+			UUID: player.UUID(),
+			Name: player.Name(),
+			IsAi: player.IsAi(),
+		})
+	}
+
 	// Send stopGame message
+	stopGameMessage := StopGameMessage{
+		NumOfPlayers:      numOfPlayers,
+		NumOfHumans:       numOfHumans,
+		DetectiveWin:      detectiveWin,
+		EliminatedPlayers: eliminatedPlayersInfo,
+	}
+	stopGameData, _ := json.Marshal(stopGameMessage)
+	data := MessageData{
+		Type: "stopGame",
+		Data: stopGameData,
+	}
+
+	response, _ := json.Marshal(data)
+	s.m.Broadcast(response)
+	log.Printf("Broadcasted stopGame to all players")
+
+	// Reset game
+	s.game = nil
+	s.isDetectiveIn = false
+	s.sessionUserMap = map[*melody.Session]*User{}
+	s.m.CloseWithMsg([]byte("Game ended"))
 }
 
 func getHumansFromSessionUserMap(m map[*melody.Session]*User) []User {
