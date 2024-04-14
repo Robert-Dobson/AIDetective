@@ -143,6 +143,12 @@ func (s *Server) RunServer() {
 			// Initialize game
 			users := getHumansFromSessionUserMap(s.sessionUserMap)
 
+			if len(users) == 0 {
+				log.Printf("No humans in game")
+				// TODO: Return message to Frontend
+				return
+			}
+
 			// Create AIs
 			numOfHumans := len(users)
 			numOfAIs := numberOfAIs(numOfHumans)
@@ -161,12 +167,6 @@ func (s *Server) RunServer() {
 		case "beginRound":
 			if s.game == nil {
 				log.Printf("Game not initialized")
-				return
-			}
-
-			if len(getHumansFromSessionUserMap(s.sessionUserMap)) == 0 {
-				log.Printf("No humans in game")
-				// TODO: Return message to Frontend
 				return
 			}
 
