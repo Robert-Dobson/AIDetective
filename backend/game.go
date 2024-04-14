@@ -22,9 +22,16 @@ var howManyAI = map[int]int{
 type Player interface {
 	UUID() string
 	Name() string
+	IsAi() bool
 
 	Eliminated() bool
 	Eliminate()
+}
+
+type PlayerInfo struct {
+	uuid string
+	name string
+	isAi bool
 }
 
 type Game struct {
@@ -131,4 +138,10 @@ func numberOfAIs(numberOfHumans int) int {
 	}
 
 	return numOfAIs
+}
+
+func (g *Game) GetPlayerInfo(uuid string) PlayerInfo {
+	player := g.UUIDToPlayers[uuid]
+	return PlayerInfo{name: player.Name(), uuid: player.UUID(), isAi: player.IsAi()}
+
 }

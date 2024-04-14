@@ -43,6 +43,10 @@ func (a *AI) Eliminate() {
 	a.eliminated = true
 }
 
+func (a *AI) IsAi() bool {
+	return true
+}
+
 type LLM struct {
 	client *openai.Client
 }

@@ -33,6 +33,10 @@ func (u *User) Eliminate() {
 	u.eliminated = true
 }
 
+func (u *User) IsAi() bool {
+	return false
+}
+
 func CreateUser(name string, UUID string, role Role) User {
 	return User{
 		name:       name,
