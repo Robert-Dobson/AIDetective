@@ -301,13 +301,6 @@ Response */
 .prompt.active {
     opacity: 1;
     transform: none;
-    /* animation: prompt-appear 300ms ease-in 1 forwards; */
-}
-
-@keyframes prompt-appear {
-    0% {
-        opacity: 0;
-    }
 }
 
 .prompt__text {
