@@ -7,9 +7,9 @@ With AI scams and deepfakes becoming more and more worrying, this game challenge
 [ Add GIF ] 
 
 ## How the Game Works
-Throughout the game there is a single dectective. The goal of the detective is to successfully identify the humans and eliminate all of them. There are also up to 4 humans, the goal of these players is to blend in with the AI. If at least one human survives the rounds and avoids being identified by the dectective, they will win. The last role is the AI, their goal is to act as closely to humans as possible. 
+Throughout the game there is a single detective. The goal of the detective is to successfully identify the humans and eliminate all of them. There are also up to 4 humans, the goal of these players is to blend in with the AI. If at least one human survives the rounds and avoids being identified by the dectective, they will win. The last role is the AI which, as the name suggests, are powered by AI. Their goal is to act as closely to humans as possible. 
 
-Each round detective can provide a prompt to all the players (Humans and AI) for which they must respond. Using the responses given, the detective then attempts to choose a human to eliminate. At the end of the round, the true identity of the eliminated player will be revealed, and depending on if any Humans remain, they will begin a new round. 
+Each round detective can provide a prompt to all the players (humans and AI) for which they must respond. Using the responses given, the detective then attempts to choose a human to eliminate. At the end of the round, the true identity of the eliminated player will be revealed, and depending on if any Humans remain, they will begin a new round. 
 
 [ Add photos]
 
