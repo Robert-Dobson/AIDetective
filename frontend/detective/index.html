@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>AI Detective</title>
+
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+    <style>
+        .content {
+            padding: 6.4rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.6rem;
+            align-items: start;
+            /* max-width: 80rem;
+            margin: 0 auto; */
+        }
+
+        .message {
+            width: 100%;
+        }
+
+        .top-bar {
+            position: relative;
+            width: 100%;
+        }
+
+        .start-wrapper {
+            position: absolute;
+            inset: 50% auto auto 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1;
+        }
+
+        .message {
+            overflow: hidden;
+        }
+
+        .start-wrapper:not(.hidden) ~ .message {
+            filter: blur(5px);
+            pointer-events: none;
+        }
+
+        .start-wrapper.hidden {
+            display: none;
+        }
+
+        .message__input {
+            transition: opacity 500ms;
+            opacity: 1;
+        }
+
+        .message__input.slide-off {
+            animation: slide-prompt-off 300ms ease-in 1 forwards;
+            transition: opacity 0ms 300ms;
+            opacity: 0;
+        }
+
+        @keyframes slide-prompt-off {
+            100% {
+                transform: translateY(100%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="content">
+        <div class="title">
+            <div class="title__message"></div>
+        </div>
+        <div class="top-bar">
+            <div class="start-wrapper">
+                <button class="button" id="start-button">Start Game</button>
+            </div>
+            <form class="message card" id="prompt-form" autocomplete="off">
+                <input class="message__input" type="text" placeholder="Ask a question..." name="prompt">
+                <button type="submit" class="button message__button">
+                    <svg width="36" viewBox="0 0 48 48">
+                        <path d="M10,12L22,24L10,36" style="fill:none;stroke-width:6px;"/>
+                        <path d="M26,12L38,24L26,36" style="fill:none;stroke-width:6px;"/>
+                    </svg>
+                </button>
+            </form>
+        </div>
+        <div class="prompt">
+            <svg class="prompt__icon" viewBox="0 0 48 48">
+                <path d="M10.689,28.007L5.628,29.192L12.767,36.513L11.281,38.182L22.478,43.511L10.689,28.007ZM37.311,28.007L42.372,29.192L35.233,36.513L36.719,38.182L25.522,43.511L37.311,28.007ZM17.937,23.193C19.115,23.232 20.282,23.373 21.435,23.621C22.254,23.798 23.074,23.961 23.916,23.969C24.704,23.977 25.481,23.871 26.255,23.736C27.163,23.577 28.066,23.385 28.98,23.261C29.796,23.15 30.609,23.151 31.427,23.263C32.242,23.374 33.045,23.537 33.839,23.751C33.993,23.793 34.156,23.801 34.313,23.836C34.533,23.884 34.611,23.988 34.585,24.212C34.562,24.406 34.568,24.598 34.586,24.793C34.601,24.957 34.568,25.093 34.393,25.18C34.2,25.277 34.085,25.459 33.99,25.649C33.807,26.016 33.72,26.415 33.61,26.807C33.509,27.166 33.419,27.528 33.292,27.879C32.937,28.853 32.258,29.511 31.289,29.841C30.003,30.278 28.722,30.222 27.476,29.669C26.536,29.253 25.928,28.511 25.511,27.593C25.334,27.205 25.206,26.799 25.064,26.398C24.993,26.196 24.908,26.002 24.779,25.829C24.663,25.674 24.516,25.582 24.315,25.58C24.124,25.577 23.935,25.553 23.744,25.582C23.589,25.606 23.474,25.68 23.392,25.813C23.271,26.013 23.19,26.231 23.135,26.456C22.935,27.276 22.548,28 22.032,28.663C21.44,29.422 20.677,29.896 19.729,30.054C18.696,30.226 17.674,30.166 16.677,29.826C16.493,29.763 16.317,29.68 16.143,29.594C15.683,29.365 15.357,29.015 15.149,28.543C14.81,27.773 14.501,26.993 14.299,26.174C14.222,25.861 14.076,25.594 13.835,25.373C13.647,25.201 13.476,25.01 13.431,24.743C13.4,24.562 13.411,24.378 13.418,24.195C13.421,24.113 13.426,24.031 13.42,23.949C13.413,23.869 13.443,23.835 13.522,23.824C14.155,23.735 14.775,23.58 15.401,23.458C16.033,23.335 16.667,23.232 17.309,23.195C17.518,23.183 17.728,23.193 17.937,23.193L17.937,23.193ZM18.887,3.522C17.929,3.655 17.073,4.39 16.471,5.596C16.108,6.325 15.999,6.709 15.724,8.209C15.576,9.026 15.177,10.855 14.805,12.428C14.636,13.135 14.666,13.069 14.487,13.093C11.826,13.435 9.495,13.915 7.871,14.466C5.857,15.146 4.783,15.905 4.711,16.701C4.59,18.034 7.384,19.359 12.156,20.226C18.621,21.403 27.69,21.497 34.564,20.453C36.883,20.103 38.806,19.661 40.294,19.132C43.094,18.143 44.041,17 42.979,15.899C41.894,14.78 38.676,13.779 34.192,13.168C33.82,13.12 33.505,13.078 33.493,13.078C33.466,13.078 33.439,12.99 33.306,12.428C32.846,10.483 32.444,8.605 32.296,7.71C32.123,6.676 31.788,5.751 31.325,5.043C31.116,4.719 31.068,4.662 30.775,4.357C30.487,4.063 30.245,3.888 29.916,3.737C29.562,3.57 29.302,3.513 28.939,3.513C28.528,3.513 28.074,3.61 26.187,4.097C25.431,4.29 25.114,4.357 24.651,4.414C23.859,4.511 23.275,4.444 21.923,4.097C19.81,3.552 19.332,3.461 18.887,3.522Z"/>
+            </svg>
+            <div class="prompt__text card">Hello</div>
+        </div>
+        <div class="responses">
+        </div>
+    </div>
+    <template id="response-template">
+        <div class="response">
+            <svg class="response__icon" viewBox="0 0 48 48">
+                <path d="M42.703,39.448C42.703,39.448 38.326,37.385 34.949,34.738C34.851,32.943 33.409,32.8 30.807,31.932C30.617,31.869 30.68,30.416 30.68,30.416C31.375,28.52 32.631,26.967 33.207,22.242C34.576,22.059 34.767,20.989 35.041,19.347C35.315,17.704 34.216,17.056 34.216,17.056C34.216,17.056 34.871,14.95 34.506,12.851C34.141,10.752 34.858,4.047 23.955,3.405C23.955,3.405 18.32,2.918 15.205,7.774C13.352,10.662 13.053,14.4 13.877,17.331C13.147,17.423 12.871,18.344 13.236,19.713C13.601,21.082 14.061,21.912 14.061,21.912C14.061,21.912 14.116,22.938 14.938,22.664C15.211,23.553 15.225,25.04 16.505,27.669C17.47,29.9 17.979,30.792 17.979,31.045C18.105,31.614 18.057,32.049 17.916,32.059C16.146,32.185 13.972,33.385 13.972,33.385L13.881,34.754C5.249,39.641 6.512,39.573 3.749,40.229C3.749,40.229 -2.014,41.579 -2.955,48L50.955,48C50.391,41.404 42.703,39.448 42.703,39.448Z"/>
+                <path d="M22.271,27.754L22.271,24.182L25.843,24.182L25.843,27.754L22.271,27.754ZM25.513,22.949L22.271,22.949C22.263,22.483 22.258,22.199 22.258,22.097C22.258,21.046 22.432,20.182 22.78,19.504C23.127,18.826 23.822,18.063 24.864,17.215C25.907,16.368 26.53,15.813 26.733,15.55C27.047,15.134 27.204,14.677 27.204,14.177C27.204,13.482 26.926,12.886 26.371,12.391C25.816,11.895 25.068,11.647 24.127,11.647C23.22,11.647 22.462,11.905 21.851,12.422C21.241,12.939 20.822,13.728 20.593,14.787L17.313,14.38C17.406,12.863 18.052,11.575 19.252,10.515C20.451,9.456 22.025,8.926 23.975,8.926C26.026,8.926 27.657,9.462 28.869,10.534C30.081,11.607 30.687,12.855 30.687,14.278C30.687,15.067 30.465,15.813 30.02,16.516C29.575,17.219 28.623,18.177 27.166,19.389C26.411,20.016 25.943,20.521 25.761,20.902C25.579,21.283 25.496,21.966 25.513,22.949Z"/>
+            </svg>
+            <div class="response__text card"></div>
+        </div>
+    </template>
+    <script>
+        let timeoutId = 0;
+
+        function showTitle(message, duration=2000) {
+            console.log("showing title");
+
+            clearTimeout(timeoutId);
+
+            const elem1 = document.querySelector(".title");
+            const elem2 = document.querySelector(".title__message");
+
+            elem1.classList.add("active");
+            elem2.innerText = message;
+
+            timeoutId = setTimeout(function() {
+                elem1.classList.remove("active")
+            }, duration);
+        }
+
+        function animationEnd(element) {
+            return new Promise(function(resolve) {
+                element.addEventListener("animationend", resolve, {once: true});
+            });
+        }
+
+        (function() {
+            const url = new URL(`ws://${window.location.host}/ws`);
+
+            url.searchParams.append("role", "detective");
+            url.searchParams.append("name", localStorage.getItem("name"));
+            url.searchParams.append("uuid", uuid());
+
+            console.log("connecting to", url.href);
+
+            const socket = new WebSocket(url.href);
+
+            socket.addEventListener("open", function(event) {
+                console.log(event);
+            });
+
+            socket.addEventListener("message", function(event) {
+                const message = JSON.parse(event.data);
+                console.log("received message", event.data);
+
+                switch (message.type) {
+                    case "beginGame":
+                        showTitle("Begin!");
+                        break;
+                    case "finishResponses":
+                        showTitle("Responses Finished!");
+
+                        const template = document.getElementById("response-template");
+                        const responses = document.querySelector(".responses");
+
+                        for (const response of message.data.responses) {
+                            const clone = template.content.cloneNode(true);
+                            clone.querySelector(".response__text").innerText = response.response;
+                            responses.appendChild(clone);
+                        }
+                        break;
+                    default:
+                        console.error("unhandled message", message.type);
+                        break;
+                }
+            });
+
+            const startButton = document.getElementById("start-button");
+
+            startButton.addEventListener("click", function(event) {
+                const data = JSON.stringify({
+                    type: "beginGame",
+                });
+
+                document.querySelector(".start-wrapper").classList.add("hidden");
+                socket.send(data);
+            });
+
+            const promptForm = document.getElementById("prompt-form");
+
+            promptForm.addEventListener("submit", function(event) {
+                event.preventDefault();
+
+                const formData = new FormData(promptForm);
+                const prompt = formData.get("prompt");
+                const data = JSON.stringify({
+                    type: "beginRound",
+                    data: {
+                        prompt: prompt,
+                    }
+                });
+
+                socket.send(data);
+                showTitle("Awaiting Responses");
+                document.querySelector(".prompt__text").innerText = prompt;
+
+                (async function() {
+                    const prompt = document.querySelector(".prompt");
+                    prompt.classList.add("active");
+                    // await animationEnd(prompt);
+                })();
+
+                (async function() {
+                    const message = document.querySelector(".message__input");
+                    promptForm.classList.add("disabled");
+                    message.blur();
+                    message.classList.add("slide-off");
+                    await animationEnd(message);
+                    message.value = "";
+                    message.setAttribute("placeholder", "Awaiting responses...");
+                    message.classList.remove("slide-off");
+                })();
+            });
+        })();
+
+        function uuid() {
+            return "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, function(c) {
+                var r = Math.random() * 16 | 0, v = c == "x" ? r : (r & 0x3 | 0x8);
+                return v.toString(16);
+            });
+        }
+
+        // for (let i = 0; i < 4; i++) {
+        //     const clone = template.content.cloneNode(true);
+        //     clone.querySelector(".response__text").innerText = "";
+        //     responses.appendChild(clone);
+        // }
+    </script>
+</body>
+</html>
