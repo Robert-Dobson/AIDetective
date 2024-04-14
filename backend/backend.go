@@ -42,7 +42,7 @@ type Response struct {
 }
 
 type AllResponseData struct {
-	Responses []Response
+	Responses []Response `json:"responses"`
 }
 
 type StopRoundMessage struct {
