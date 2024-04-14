@@ -154,11 +154,11 @@
 
         (function() {
             const url = new URL(`ws://${window.location.host}/ws`);
-            const uuid = uuid();
+            const myUUID = uuid();
 
             url.searchParams.append("role", "human");
             url.searchParams.append("name", localStorage.getItem("name"));
-            url.searchParams.append("uuid", uuid);
+            url.searchParams.append("uuid", myUUID);
 
             console.log("connecting to", url.href);
 
@@ -171,7 +171,6 @@
             socket.addEventListener("message", function(event) {
                 const message = JSON.parse(event.data);
                 console.log("received message", event.data);
-
                 switch (message.type) {
                     case "beginGame":
                         showTitle("Begin!");
@@ -187,7 +186,7 @@
                         showTitle("Awaiting Vote");
                         break;
                     case "stopRound":
-                        if (message.data.uuid === uuid) {
+                        if (message.data.uuid === myUUID) {
                             showTitle("You Were Eliminated");
                             setTimeout(exitGame, 3000);
                         } else {

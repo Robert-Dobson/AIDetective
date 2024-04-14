@@ -14,6 +14,8 @@ html {
     --error1: 0, 70%, 60%;
     --green1: 110, 50%, 50%;
     --yellow1: 50, 50%, 50%;
+    --purple1: 273, 70%, 60%;
+    --orange1: 31, 70%, 60%;
 }
 
 html {
@@ -351,52 +353,64 @@ Response */
     filter: grayscale(100%);
 }
 
-.response:nth-child(1) .response__icon {
-    background: hsl(var(--primary1));
+.response:nth-child(1) {
+    --colour: 0, 50%, 50%;
 }
 
-.response:nth-child(2) .response__icon {
-    background: hsl(var(--error1));
+.response:nth-child(2) {
+    --colour: 29, 50%, 50%;
 }
 
-.response:nth-child(3) .response__icon {
-    background: hsl(var(--green1));
+.response:nth-child(3) {
+    --colour: 58, 50%, 50%;
 }
 
-.response:nth-child(4) .response__icon {
-    background: hsl(var(--yellow1));
+.response:nth-child(4) {
+    --colour: 87, 50%, 50%;
 }
 
-.response:nth-child(1) .response__text {
+.response:nth-child(5) {
+    --colour: 116, 50%, 50%;
+}
+
+.response:nth-child(6) {
+    --colour: 145, 50%, 50%;
+}
+
+.response:nth-child(7) {
+    --colour: 174, 50%, 50%;
+}
+
+.response:nth-child(8) {
+    --colour: 203, 50%, 50%;
+}
+
+.response:nth-child(9) {
+    --colour: 232, 50%, 50%;
+}
+
+.response:nth-child(10) {
+    --colour: 261, 50%, 50%;
+}
+
+.response:nth-child(11) {
+    --colour: 290, 50%, 50%;
+}
+
+.response:nth-child(12) {
+    --colour: 319, 50%, 50%;
+}
+
+.response__icon {
+    background: hsl(var(--colour));
+}
+
+.response__text {
     background: linear-gradient(
-        hsla(var(--primary1), 5%),
-        hsla(var(--primary1), 30%)
+        hsla(var(--colour), 5%),
+        hsla(var(--colour), 30%)
     );
-    border: 1px solid hsla(var(--primary1), 80%);
-}
-
-.response:nth-child(2) .response__text {
-    background: linear-gradient(
-        hsla(var(--error1), 5%),
-        hsla(var(--error1), 30%)
-    );
-    border: 1px solid hsla(var(--error1), 80%);
-}
-
-.response:nth-child(3) .response__text {
-    background: linear-gradient(
-        hsla(var(--green1), 5%),
-        hsla(var(--green1), 30%)
-    );
-    border: 1px solid hsla(var(--green1), 80%);
-}
-
-.response:nth-child(4) .response__text {
-    background: linear-gradient(
-        hsla(var(--yellow1), 5%),
-        hsla(var(--yellow1), 30%)
-    );
-    border: 1px solid hsla(var(--yellow1), 80%);
+    border: 1px solid hsla(var(--colour), 80%);
 }
 
 .response__icon path:nth-child(2) {
