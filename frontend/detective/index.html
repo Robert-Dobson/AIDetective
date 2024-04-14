@@ -77,8 +77,8 @@
             <div class="start-wrapper">
                 <button class="button" id="start-button">Start Game</button>
             </div>
-            <form class="message card" id="prompt-form" autocomplete="off">
-                <input class="message__input" type="text" placeholder="Ask a question..." name="prompt">
+            <form class="message card disabled" id="prompt-form" autocomplete="off">
+                <input class="message__input" type="text" placeholder="Waiting for game to begin..." name="prompt">
                 <button type="submit" class="button message__button">
                     <svg width="36" viewBox="0 0 48 48">
                         <path d="M10,12L22,24L10,36" style="fill:none;stroke-width:6px;"/>
@@ -97,7 +97,7 @@
         </div>
     </div>
     <template id="response-template">
-        <div class="response">
+        <div class="response" data-uuid="">
             <svg class="response__icon" viewBox="0 0 48 48">
                 <path d="M42.703,39.448C42.703,39.448 38.326,37.385 34.949,34.738C34.851,32.943 33.409,32.8 30.807,31.932C30.617,31.869 30.68,30.416 30.68,30.416C31.375,28.52 32.631,26.967 33.207,22.242C34.576,22.059 34.767,20.989 35.041,19.347C35.315,17.704 34.216,17.056 34.216,17.056C34.216,17.056 34.871,14.95 34.506,12.851C34.141,10.752 34.858,4.047 23.955,3.405C23.955,3.405 18.32,2.918 15.205,7.774C13.352,10.662 13.053,14.4 13.877,17.331C13.147,17.423 12.871,18.344 13.236,19.713C13.601,21.082 14.061,21.912 14.061,21.912C14.061,21.912 14.116,22.938 14.938,22.664C15.211,23.553 15.225,25.04 16.505,27.669C17.47,29.9 17.979,30.792 17.979,31.045C18.105,31.614 18.057,32.049 17.916,32.059C16.146,32.185 13.972,33.385 13.972,33.385L13.881,34.754C5.249,39.641 6.512,39.573 3.749,40.229C3.749,40.229 -2.014,41.579 -2.955,48L50.955,48C50.391,41.404 42.703,39.448 42.703,39.448Z"/>
                 <path d="M22.271,27.754L22.271,24.182L25.843,24.182L25.843,27.754L22.271,27.754ZM25.513,22.949L22.271,22.949C22.263,22.483 22.258,22.199 22.258,22.097C22.258,21.046 22.432,20.182 22.78,19.504C23.127,18.826 23.822,18.063 24.864,17.215C25.907,16.368 26.53,15.813 26.733,15.55C27.047,15.134 27.204,14.677 27.204,14.177C27.204,13.482 26.926,12.886 26.371,12.391C25.816,11.895 25.068,11.647 24.127,11.647C23.22,11.647 22.462,11.905 21.851,12.422C21.241,12.939 20.822,13.728 20.593,14.787L17.313,14.38C17.406,12.863 18.052,11.575 19.252,10.515C20.451,9.456 22.025,8.926 23.975,8.926C26.026,8.926 27.657,9.462 28.869,10.534C30.081,11.607 30.687,12.855 30.687,14.278C30.687,15.067 30.465,15.813 30.02,16.516C29.575,17.219 28.623,18.177 27.166,19.389C26.411,20.016 25.943,20.521 25.761,20.902C25.579,21.283 25.496,21.966 25.513,22.949Z"/>
@@ -109,8 +109,6 @@
         let timeoutId = 0;
 
         function showTitle(message, duration=2000) {
-            console.log("showing title");
-
             clearTimeout(timeoutId);
 
             const elem1 = document.querySelector(".title");
@@ -152,6 +150,9 @@
                 switch (message.type) {
                     case "beginGame":
                         showTitle("Begin!");
+                        enablePrompt();
+                        break;
+                    case "beginRound":
                         break;
                     case "finishResponses":
                         showTitle("Responses Finished!");
@@ -162,8 +163,40 @@
                         for (const response of message.data.responses) {
                             const clone = template.content.cloneNode(true);
                             clone.querySelector(".response__text").innerText = response.response;
+                            clone.querySelector(".response").dataset.uuid = response.uuid;
                             responses.appendChild(clone);
                         }
+
+                        break;
+                    case "stopRound":
+                        if (message.data.isAi) {
+                            showTitle(`${message.data.name} was not a human`);
+                        } else {
+                            showTitle(`${message.data.name} was a human`);
+                        }
+
+                        clearResponses();
+                        enablePrompt();
+
+                        break;
+                    case "stopGame":
+                        const eliminatedPlayer = message.data.eliminatedPlayers[message.data.eliminatedPlayers.length - 1];
+                        if (eliminatedPlayer.isAi) {
+                            showTitle(`${eliminatedPlayer.name} was not a human`);
+                        } else {
+                            showTitle(`${eliminatedPlayer.name} was a human`);
+                        }
+                        setTimeout(function() {
+                            showTitle("Game Over!");
+                            setTimeout(function() {
+                                if (message.data.didDetectiveWin) {
+                                    showTitle("Detective Won!");
+                                } else {
+                                    showTitle("Humans Won!");
+                                }
+                                setTimeout(exitGame, 3000);
+                            }, 3000);
+                        }, 3000);
                         break;
                     default:
                         console.error("unhandled message", message.type);
@@ -217,6 +250,18 @@
                     message.classList.remove("slide-off");
                 })();
             });
+
+            document.querySelector(".responses").addEventListener("click", function(event) {
+                const response = event.target.closest(".response");
+                const data = JSON.stringify({
+                    type: "eliminate",
+                    data: {
+                        uuid: response.dataset.uuid,
+                    }
+                });
+
+                socket.send(data);
+            });
         })();
 
         function uuid() {
@@ -224,6 +269,20 @@
                 var r = Math.random() * 16 | 0, v = c == "x" ? r : (r & 0x3 | 0x8);
                 return v.toString(16);
             });
+        }
+
+        function clearResponses() {
+            document.querySelector(".responses").innerHTML = "";
+        }
+
+        function enablePrompt() {
+            document.getElementById("prompt-form").classList.remove("disabled");
+            document.querySelector(".message__input").setAttribute("placeholder", "Ask a question...");
+        }
+
+        function exitGame() {
+            window.location.href = "/";
+            window.localStorage.removeItem("name");
         }
 
         // for (let i = 0; i < 4; i++) {

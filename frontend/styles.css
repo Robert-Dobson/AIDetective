@@ -242,6 +242,7 @@ Title */
     transform: translateY(-50%);
     overflow: hidden;
     z-index: 9;
+    pointer-events: none;
 }
 
 .title__message {
@@ -268,6 +269,12 @@ Title */
 .title.active .title__message {
     transform: none;
     transition: transform 500ms 200ms;
+}
+
+@media screen and (max-width: 899px) {
+    .title__message {
+        font-size: 3.2rem;
+    }
 }
 
 /* -----------------------------------------------------------------------------

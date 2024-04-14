@@ -105,8 +105,8 @@
             <div class="title__message"></div>
         </div>
         <div class="top-bar">
-            <form class="message card" id="prompt-form" autocomplete="off">
-                <input class="message__input" type="text" placeholder="Enter your response..." name="prompt">
+            <form class="message card disabled" id="prompt-form" autocomplete="off">
+                <input class="message__input" type="text" placeholder="Waiting for prompt..." name="prompt">
                 <button type="submit" class="button message__button">
                     <svg width="36" viewBox="0 0 48 48">
                         <path d="M10,12L22,24L10,36" style="fill:none;stroke-width:6px;"/>
@@ -154,10 +154,11 @@
 
         (function() {
             const url = new URL(`ws://${window.location.host}/ws`);
+            const uuid = uuid();
 
             url.searchParams.append("role", "human");
             url.searchParams.append("name", localStorage.getItem("name"));
-            url.searchParams.append("uuid", uuid());
+            url.searchParams.append("uuid", uuid);
 
             console.log("connecting to", url.href);
 
@@ -176,8 +177,35 @@
                         showTitle("Begin!");
                         break;
                     case "beginRound":
+                        showTitle("Enter Your Response");
                         const prompt = message.data.prompt;
                         document.querySelector(".prompt__text").innerText = prompt;
+                        clearResponses();
+                        enablePrompt();
+                        break;
+                    case "finishResponses":
+                        showTitle("Awaiting Vote");
+                        break;
+                    case "stopRound":
+                        if (message.data.uuid === uuid) {
+                            showTitle("You Were Eliminated");
+                            setTimeout(exitGame, 3000);
+                        } else {
+                            showTitle("Round Over");
+                        }
+                        break;
+                    case "stopGame":
+                        setTimeout(function() {
+                            showTitle("Game Over!");
+                            setTimeout(function() {
+                                if (message.data.didDetectiveWin) {
+                                    showTitle("Detective Won!");
+                                } else {
+                                    showTitle("Humans Won!");
+                                }
+                                setTimeout(exitGame, 3000);
+                            }, 3000);
+                        }, 3000);
                         break;
                     default:
                         console.error("unhandled message", message.type);
@@ -226,6 +254,20 @@
                 var r = Math.random() * 16 | 0, v = c == "x" ? r : (r & 0x3 | 0x8);
                 return v.toString(16);
             });
+        }
+
+        function clearResponses() {
+            document.querySelector(".response__text").innerHTML = "";
+        }
+
+        function enablePrompt() {
+            document.getElementById("prompt-form").classList.remove("disabled");
+            document.querySelector(".message__input").setAttribute("placeholder", "Enter your response...");
+        }
+
+        function exitGame() {
+            window.location.href = "/";
+            window.localStorage.removeItem("name");
         }
     </script>
 </body>
