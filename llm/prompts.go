@@ -15,4 +15,11 @@ var personalityPrompts = []string{
 var compsciPrompt = []string{
 	"What's your favorite programming language?",
 	"Is Java or C# better for OOP?",
+	"How did you find your first year at uni?",
+	"Are you more into frontend or backend?",
+	"What do you think about AI?",
+	"Do you have a least favorite programming language?",
+	"What is your controversial computer science opinion",
+	"What was your experimental system project idea?",
+	"Do you think that p=np?",
 }
