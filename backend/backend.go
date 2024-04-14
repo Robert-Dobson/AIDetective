@@ -133,9 +133,9 @@ func (s *Server) RunServer() {
 		s.sessionUserMap[session] = &user
 
 		joinData, _ := json.Marshal(struct {
-			humans int `json:"humans"`
+			Humans int `json:"humans"`
 		}{
-			humans: len(getHumansFromSessionUserMap(s.sessionUserMap)),
+			Humans: len(getHumansFromSessionUserMap(s.sessionUserMap)),
 		})
 		data := MessageData{
 			Type: "join",
@@ -254,11 +254,11 @@ func (s *Server) RunServer() {
 			}
 
 			responseData, _ := json.Marshal(struct {
-				responses int `json:"responses"`
-				players   int `json:"players"`
+				Responses int `json:"responses"`
+				Players   int `json:"players"`
 			}{
-				responses: len(s.game.PlayerToResponse),
-				players:   len(s.game.UUIDToPlayers),
+				Responses: len(s.game.PlayerToResponse),
+				Players:   len(s.game.UUIDToPlayers),
 			})
 			respondData := MessageData{
 				Type: "respond",
