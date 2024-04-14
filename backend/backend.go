@@ -1,7 +1,5 @@
 package backend
 
-// TODO: Handle what happens if the user disconnects at any time
-
 import (
 	"ai-detective/llm"
 	"encoding/json"
@@ -44,7 +42,7 @@ type Response struct {
 }
 
 type AllResponseData struct {
-	Responses []Response
+	Responses []Response `json:"responses"`
 }
 
 type StopRoundMessage struct {

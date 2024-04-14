@@ -4,8 +4,88 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
     <title>AI Detective</title>
+
+    <link rel="stylesheet" href="/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+
+    <style>
+        .content {
+            height: 90vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            align-items: center;
+            padding: 0 3.2rem;
+        }
+
+        .logo {
+            color: #FFF;
+            font-weight: 600;
+            font-size: 4.8rem;
+        }
+
+        .menu {
+            padding: 9.6rem 0;
+            max-width: 40rem;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        .menu__buttons {
+            width: 20rem;
+            display: flex;
+            flex-direction: column;
+            gap: 4.8rem;
+        }
+
+        @media screen and (max-width: 464px) {
+            .menu {
+                padding: 4.8rem 0;
+            }
+        }
+    </style>
 </head>
 <body>
-    hello
+    <div class="content">
+        <div class="logo">AI Detective</div>
+        <div class="menu card card--glow card--image card--lines">
+            <div class="menu__buttons">
+                <input class="text-input" type="text" id="name" name="name" autocomplete="off" placeholder="Enter your name">
+                <button class="button" id="join-detective">Join as Detective</button>
+                <button class="button" id="join-human">Join as Human</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById("join-detective").addEventListener("click", function(event) {
+            const name = getName();
+
+            if (name) {
+                localStorage.setItem("name", name);
+                window.location = "/detective";
+            }
+        });
+
+        document.getElementById("join-human").addEventListener("click", function(event) {
+            const name = getName();
+
+            if (name) {
+                localStorage.setItem("name", name);
+                window.location = "/human";
+            }
+        });
+
+        function getName() {
+            const input = document.getElementById("name")
+            const name = input.value;
+
+            input.classList.toggle("text-input--error", !name);
+
+            return name
+        }
+    </script>
 </body>
 </html>
