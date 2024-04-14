@@ -138,6 +138,11 @@ func (s *Server) RunServer() {
 			log.Printf("Broadcasted beginGame to all players")
 
 		case "beginRound":
+			if s.game == nil {
+				log.Printf("Game not initialized")
+				return
+			}
+
 			if len(getHumansFromSessionUserMap(s.sessionUserMap)) == 0 {
 				log.Printf("No humans in game")
 				// TODO: Return message to Frontend
@@ -217,6 +222,22 @@ func (s *Server) RunServer() {
 
 			// Process Elimination
 			s.game.ProcessElimination(elimination.UUID)
+
+			// Get round result
+			roundResult := s.game.GetRoundResult()
+			switch roundResult {
+			case DetectiveWin:
+				// leaderboard := s.game.eliminatedPlayers
+				// Send stopGame message
+				return
+			case HumanWin:
+				// leaderboard := s.game.eliminatedPlayers
+				// Send stopGame message
+				return
+			case Continue:
+				// Send stopRound message
+				return
+			}
 		}
 	})
 

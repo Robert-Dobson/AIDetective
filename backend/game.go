@@ -5,6 +5,14 @@ import (
 	"strings"
 )
 
+type RoundResult int
+
+const (
+	DetectiveWin RoundResult = iota
+	HumanWin
+	Continue
+)
+
 var howManyAI = map[int]int{
 	1: 5,
 	2: 7,
@@ -20,14 +28,16 @@ type Player interface {
 }
 
 type Game struct {
-	UUIDToPlayers    map[string]Player
-	PlayerToResponse map[Player]string
+	UUIDToPlayers     map[string]Player
+	PlayerToResponse  map[Player]string
+	eliminatedPlayers []Player
 }
 
 func NewGame(users []User, ais []llm.AI) *Game {
 	g := Game{
-		UUIDToPlayers:    map[string]Player{},
-		PlayerToResponse: map[Player]string{},
+		UUIDToPlayers:     map[string]Player{},
+		PlayerToResponse:  map[Player]string{},
+		eliminatedPlayers: []Player{},
 	}
 
 	// Add Players
@@ -67,23 +77,23 @@ func (g *Game) ProcessElimination(UUID string) {
 	player, ok := g.UUIDToPlayers[UUID]
 	if ok {
 		player.Eliminate()
+		g.eliminatedPlayers = append(g.eliminatedPlayers, player)
 	}
+}
 
+func (g *Game) GetRoundResult() RoundResult {
 	// Check if the game is over
 	numActivePlayers := g.GetNumberOfActivePlayers()
 	numActiveHumans := g.GetNumberOfActiveHumans()
 	numActiveAIs := numActivePlayers - numActiveHumans
 
 	if numActiveHumans == 0 {
-		// Detective win condition
-		// TODO: Send Detective win message
-	} else if numActiveAIs < 3 {
-		// Human win condition
-		// TODO: Send Human win message
-	} else {
-		// Continue to next round
-		// TODO: Send next round message
+		return DetectiveWin
 	}
+	if numActiveAIs < 3 {
+		return HumanWin
+	}
+	return Continue
 }
 
 func (g *Game) GetNumberOfActivePlayers() int {
@@ -104,10 +114,6 @@ func (g *Game) GetNumberOfActiveHumans() int {
 		}
 	}
 	return activeHumans
-}
-
-func (g *Game) CalculateLeaderboard() {
-	// Calculate the leaderboard
 }
 
 func sanitizeResponse(resp string) string {
