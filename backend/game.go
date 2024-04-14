@@ -128,7 +128,8 @@ func sanitizeResponse(resp string) string {
 	respLower := strings.ToLower(resp)
 	respNoPeriod := strings.TrimSuffix(respLower, ".")
 	respNoExclamation := strings.TrimSuffix(respNoPeriod, "!")
-	return respNoExclamation
+	respNoQuotes := strings.Replace(respNoExclamation, "\"", "", -1)
+	return respNoQuotes
 }
 
 func numberOfAIs(numberOfHumans int) int {
