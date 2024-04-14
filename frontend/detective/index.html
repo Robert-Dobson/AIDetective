@@ -130,7 +130,10 @@
 <body>
     <div class="content">
         <div class="title">
-            <div class="title__message"></div>
+            <div class="title__message">
+                <div class="title__title"></div>
+                <div class="title__subtitle"></div>
+            </div>
         </div>
         <div class="examples hidden card">
         </div>
@@ -190,17 +193,20 @@
 
         let timeoutId = 0;
 
-        function showTitle(message, duration=2000) {
+        function showTitle(message, subtitle="", duration=2000) {
             clearTimeout(timeoutId);
 
             const elem1 = document.querySelector(".title");
             const elem2 = document.querySelector(".title__message");
+            const elem3 = document.querySelector(".title__title");
+            const elem4 = document.querySelector(".title__subtitle");
 
             elem1.classList.add("active");
-            elem2.innerText = message;
+            elem3.innerText = message;
+            elem4.innerText = subtitle;
 
             timeoutId = setTimeout(function() {
-                elem1.classList.remove("active")
+                elem1.classList.remove("active");
             }, duration);
         }
 
@@ -258,10 +264,14 @@
 
                         break;
                     case "stopRound":
+                        let subtitle = `${message.data.numOfHumans} humans remaining`;
+                        if (message.data.numOfHumans == 1) {
+                            subtitle = `${message.data.numOfHumans} human remaining`;
+                        }
                         if (message.data.isAi) {
-                            showTitle(`${message.data.name} was not a human`);
+                            showTitle(`${message.data.name} was not a human`, subtitle);
                         } else {
-                            showTitle(`${message.data.name} was a human`);
+                            showTitle(`${message.data.name} was a human`, subtitle);
                         }
 
                         clearResponses();
@@ -389,23 +399,26 @@
             window.localStorage.removeItem("name");
         }
 
-        async function showExamplePrompts() {
-            await new Promise((resolve, reject) => setTimeout(resolve, 3000));
+        let exampleTimeout = 0;
 
-            examplePrompts.sort(() => 0.5 - Math.random());
-            const selected = examplePrompts.slice(0, 3);
-            document.querySelector(".examples").innerHTML = "";
+        function showExamplePrompts() {
+            exampleTimeout = setTimeout(function() {
+                examplePrompts.sort(() => 0.5 - Math.random());
+                const selected = examplePrompts.slice(0, 3);
+                document.querySelector(".examples").innerHTML = "";
 
-            for (const prompt of selected) {
-                const example = document.createElement("div");
-                example.innerText = prompt;
-                document.querySelector(".examples").appendChild(example);
-            }
+                for (const prompt of selected) {
+                    const example = document.createElement("div");
+                    example.innerText = prompt;
+                    document.querySelector(".examples").appendChild(example);
+                }
 
-            document.querySelector(".examples").classList.remove("hidden");
+                document.querySelector(".examples").classList.remove("hidden");
+            }, 3000);
         }
 
         function hideExamplePrompts() {
+            clearTimeout(exampleTimeout);
             document.querySelector(".examples").classList.add("hidden");
         }
 

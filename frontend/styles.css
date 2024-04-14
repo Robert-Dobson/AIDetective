@@ -254,6 +254,11 @@ Title */
     transition: transform 500ms;
 }
 
+.title__subtitle {
+    font-size: 2rem;
+    opacity: 0.8;
+}
+
 .title::before {
     content: "";
     position: absolute;
