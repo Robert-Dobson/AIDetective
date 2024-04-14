@@ -305,6 +305,9 @@
             });
 
             socket.addEventListener("close", function(event) {
+                if (event.code !== 1011) {
+                    return;
+                }
                 alert(event.reason);
             });
         })();
