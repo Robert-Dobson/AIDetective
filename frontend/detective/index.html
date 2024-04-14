@@ -66,12 +66,45 @@
                 transform: translateY(100%);
             }
         }
+
+        .examples {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 3.2rem;
+            padding: 3.2rem;
+            transform: translate(-50%, -30%);
+            filter: grayscale(100%);
+            opacity: 0.5;
+            transition: opacity 300ms;
+            user-select: auto;
+        }
+
+        .examples::before {
+            content: "Try asking...";
+            color: hsl(0, 0%, 75%);
+        }
+
+        .examples div {
+            font-size: 2rem;
+            color: #FFF;
+        }
+
+        .examples.hidden {
+            opacity: 0;
+        }
     </style>
 </head>
 <body>
     <div class="content">
         <div class="title">
             <div class="title__message"></div>
+        </div>
+        <div class="examples hidden card">
         </div>
         <div class="top-bar">
             <div class="start-wrapper">
@@ -93,7 +126,7 @@
             </svg>
             <div class="prompt__text card">Hello</div>
         </div>
-        <div class="responses">
+        <div class="responses hidden">
         </div>
     </div>
     <template id="response-template">
@@ -106,6 +139,27 @@
         </div>
     </template>
     <script>
+        const examplePrompts = [
+            "What's your favorite song?",
+            "What type of music do you like to listen to?",
+            "What's your favorite movie?",
+            "What do you like to do in your spare time?",
+            "What makes you unique?",
+            "What did you want to be when you were a kid?",
+            "What was your favorite subject in school?",
+            "What would you do if you won the lottery?",
+            "What's a boring fact about you?",
+            "What's your favorite programming language?",
+            "Is Java or C# better for OOP?",
+            "How did you find your first year at uni?",
+            "Are you more into frontend or backend?",
+            "What do you think about AI?",
+            "Do you have a least favorite programming language?",
+            "What is your controversial computer science opinion?",
+            "What was your experimental system project idea?",
+            "Do you think that p=np?",
+        ];
+
         let timeoutId = 0;
 
         function showTitle(message, duration=2000) {
@@ -151,14 +205,18 @@
                     case "beginGame":
                         showTitle("Begin!");
                         enablePrompt();
+                        showExamplePrompts();
                         break;
                     case "beginRound":
+                        hideExamplePrompts();
                         break;
                     case "finishResponses":
                         showTitle("Responses Finished!");
+                        hideExamplePrompts();
 
                         const template = document.getElementById("response-template");
                         const responses = document.querySelector(".responses");
+                        responses.innerHTML = "";
 
                         for (const response of message.data.responses) {
                             const clone = template.content.cloneNode(true);
@@ -166,6 +224,8 @@
                             clone.querySelector(".response").dataset.uuid = response.uuid;
                             responses.appendChild(clone);
                         }
+
+                        responses.classList.remove("hidden");
 
                         break;
                     case "stopRound":
@@ -177,6 +237,7 @@
 
                         clearResponses();
                         enablePrompt();
+                        showExamplePrompts();
 
                         break;
                     case "stopGame":
@@ -272,7 +333,11 @@
         }
 
         function clearResponses() {
-            document.querySelector(".responses").innerHTML = "";
+            document.querySelector(".prompt").classList.remove("active");
+            document.querySelector(".responses").classList.add("hidden");
+            setTimeout(function() {
+                document.querySelector(".responses").innerHTML = "";
+            }, 1000);
         }
 
         function enablePrompt() {
@@ -283,6 +348,26 @@
         function exitGame() {
             window.location.href = "/";
             window.localStorage.removeItem("name");
+        }
+
+        async function showExamplePrompts() {
+            await new Promise((resolve, reject) => setTimeout(resolve, 3000));
+
+            examplePrompts.sort(() => 0.5 - Math.random());
+            const selected = examplePrompts.slice(0, 3);
+            document.querySelector(".examples").innerHTML = "";
+
+            for (const prompt of selected) {
+                const example = document.createElement("div");
+                example.innerText = prompt;
+                document.querySelector(".examples").appendChild(example);
+            }
+
+            document.querySelector(".examples").classList.remove("hidden");
+        }
+
+        function hideExamplePrompts() {
+            document.querySelector(".examples").classList.add("hidden");
         }
 
         // for (let i = 0; i < 4; i++) {

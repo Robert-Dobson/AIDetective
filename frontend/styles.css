@@ -331,6 +331,13 @@ Response */
     gap: 3.2rem;
     margin: 3.2rem 0;
     width: 100%;
+    transition: opacity 500ms, transform 500ms;
+    position: relative;
+}
+
+.responses.hidden {
+    opacity: 0;
+    transform: translateY(-1rem);
 }
 
 .response {
