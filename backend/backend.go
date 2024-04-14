@@ -434,14 +434,14 @@ func (s *Server) BroadcastStopGame(roundResult RoundResult) {
 	s.sessionUserMap = map[*melody.Session]*User{}
 
 	// Kick all users
-	sessions, err := s.m.Sessions()
-	if err != nil {
-		log.Printf("Sessions already closed")
-		return
-	}
-	for _, session := range sessions {
-		session.CloseWithMsg([]byte("Game ended"))
-	}
+	// sessions, err := s.m.Sessions()
+	// if err != nil {
+	// 	log.Printf("Sessions already closed")
+	// 	return
+	// }
+	// for _, session := range sessions {
+	// 	session.CloseWithMsg([]byte("Game ended"))
+	// }
 }
 
 func (s *Server) BroadcastMessageAlert(message string) {
