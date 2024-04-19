@@ -3,12 +3,14 @@ package llm
 import (
 	"context"
 	"fmt"
+	"log"
 	"math/rand"
 	"os"
 	"slices"
 
+	"github.com/google/generative-ai-go/genai"
 	"github.com/google/uuid"
-	openai "github.com/sashabaranov/go-openai"
+	"google.golang.org/api/option"
 )
 
 type AI struct {
@@ -48,44 +50,43 @@ func (a *AI) IsAi() bool {
 }
 
 type LLM struct {
-	client *openai.Client
+	client *genai.GenerativeModel
+	ctx    context.Context
 }
 
 func New() LLM {
-	return LLM{openai.NewClient(os.Getenv("OPENAI_KEY"))}
+	context := context.Background()
+	client, err := genai.NewClient(context, option.WithAPIKey(os.Getenv("API_KEY")))
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer client.Close()
+
+	return LLM{client: client.GenerativeModel("gemini-pro"), ctx: context}
 }
 
 func (l LLM) getResponse(systemPrompt string, userPrompt string) (string, error) {
-	resp, err := l.client.CreateChatCompletion(
-		context.Background(),
-		openai.ChatCompletionRequest{
-			Model: openai.GPT3Dot5Turbo,
-			Messages: []openai.ChatCompletionMessage{
-				{
-					Role:    openai.ChatMessageRoleSystem,
-					Content: systemPrompt,
-				},
-				{
-					Role:    openai.ChatMessageRoleUser,
-					Content: userPrompt,
-				},
-			},
-		},
-	)
+	resp, err := l.client.GenerateContent(l.ctx, genai.Text(userPrompt))
 
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 		return "", err
 	}
 
-	return resp.Choices[0].Message.Content, nil
+	response := ""
+	for _, part := range resp.Candidates[0].Content.Parts {
+		if text, ok := part.(genai.Text); ok {
+			response += string(text)
+		}
+	}
 
+	return response, nil
 }
 
 func (l LLM) getName() (string, error) {
 	prompt := "What is your name? Give a response that is an intimidating name for an advanced AI agent. Only include the name in your response. For example: Optimus Prime, Apex AI"
-
-	return l.getResponse("", prompt)
+	return "Gemini"
+	// return l.getResponse("", prompt)
 }
 
 func (l LLM) getNames(n int) []string {
