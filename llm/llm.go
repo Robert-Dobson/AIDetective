@@ -3,7 +3,6 @@ package llm
 import (
 	"context"
 	"fmt"
-	"log"
 	"math/rand"
 	"os"
 	"slices"
@@ -50,7 +49,8 @@ func (a *AI) IsAi() bool {
 }
 
 type LLM struct {
-	client *genai.GenerativeModel
+	model  *genai.GenerativeModel
+	client *genai.Client
 	ctx    context.Context
 }
 
@@ -58,15 +58,15 @@ func New() LLM {
 	context := context.Background()
 	client, err := genai.NewClient(context, option.WithAPIKey(os.Getenv("API_KEY")))
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("Error: %v\n", err)
 	}
 	defer client.Close()
 
-	return LLM{client: client.GenerativeModel("gemini-pro"), ctx: context}
+	return LLM{model: client.GenerativeModel("gemini-pro"), client: client, ctx: context}
 }
 
-func (l LLM) getResponse(systemPrompt string, userPrompt string) (string, error) {
-	resp, err := l.client.GenerateContent(l.ctx, genai.Text(userPrompt))
+func (l LLM) getResponse(userPrompt string) (string, error) {
+	resp, err := l.model.GenerateContent(l.ctx, genai.Text(userPrompt))
 
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
@@ -84,8 +84,8 @@ func (l LLM) getResponse(systemPrompt string, userPrompt string) (string, error)
 }
 
 func (l LLM) getName() (string, error) {
-	prompt := "What is your name? Give a response that is an intimidating name for an advanced AI agent. Only include the name in your response. For example: Optimus Prime, Apex AI"
-	return "Gemini"
+	//prompt := "What is your name? Give a response that is an intimidating name for an advanced AI agent. Only include the name in your response. For example: Optimus Prime, Apex AI"
+	return "Gemini", nil
 	// return l.getResponse("", prompt)
 }
 
@@ -94,7 +94,7 @@ func (l LLM) getNames(n int) []string {
 
 	for len(names) < n {
 		name, err := l.getName()
-		if err != nil {
+		if err == nil {
 			names = append(names, "GPT-3.5 Turbo")
 		}
 
@@ -132,7 +132,7 @@ func (l LLM) MakeAIs(n int) []AI {
 
 func (l LLM) AskAI(prompt string, ai *AI) string {
 	userPrompt := fmt.Sprintf("%s \n Keeping your new personality in mind, answer the following question: \n  %s", ai.personality, prompt)
-	resp, _ := l.getResponse("", userPrompt)
+	resp, _ := l.getResponse(userPrompt)
 	return resp
 }
 

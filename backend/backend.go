@@ -176,6 +176,7 @@ func (s *Server) RunServer() {
 			// Create AIs
 			numOfHumans := len(users)
 			numOfAIs := numberOfAIs(numOfHumans)
+			log.Printf(("Creating %d AI"), numOfAIs)
 			ais := s.llm.MakeAIs(numOfAIs)
 
 			// Initialize game with players
