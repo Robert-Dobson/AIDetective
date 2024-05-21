@@ -82,6 +82,7 @@ func NewServer() *Server {
 }
 
 func (s *Server) RunServer() {
+	log.Printf("Server running...")
 	// Serve the frontend
 	http.Handle("/", http.FileServer(http.Dir("frontend")))
 
