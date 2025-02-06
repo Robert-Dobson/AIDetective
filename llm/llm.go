@@ -60,9 +60,12 @@ func New() LLM {
 	if err != nil {
 		fmt.Printf("Error: %v\n", err)
 	}
-	defer client.Close()
 
-	return LLM{model: client.GenerativeModel("gemini-pro"), client: client, ctx: context}
+	return LLM{model: client.GenerativeModel("gemini-2.0-flash-lite-preview-02-05"), client: client, ctx: context}
+}
+
+func (l LLM) Close() {
+	l.client.Close()
 }
 
 func (l LLM) getResponse(userPrompt string) (string, error) {
@@ -95,7 +98,7 @@ func (l LLM) getNames(n int) []string {
 	for len(names) < n {
 		name, err := l.getName()
 		if err == nil {
-			names = append(names, "GPT-3.5 Turbo")
+			names = append(names, "Gemini")
 		}
 
 		if !slices.Contains(names, name) {

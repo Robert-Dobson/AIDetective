@@ -82,6 +82,9 @@ func NewServer() *Server {
 }
 
 func (s *Server) RunServer() {
+	// Make sure LLM client will close once server stops
+	defer s.llm.Close()
+
 	log.Printf("Server running...")
 	// Serve the frontend
 	http.Handle("/", http.FileServer(http.Dir("frontend")))
