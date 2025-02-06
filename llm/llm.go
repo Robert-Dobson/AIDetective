@@ -87,9 +87,9 @@ func (l LLM) getResponse(userPrompt string) (string, error) {
 }
 
 func (l LLM) getName() (string, error) {
-	//prompt := "What is your name? Give a response that is an intimidating name for an advanced AI agent. Only include the name in your response. For example: Optimus Prime, Apex AI"
-	return "Gemini", nil
-	// return l.getResponse("", prompt)
+	prompt := "What is your name? Give a response that is an intimidating name for an advanced AI agent. Only include the name in your response. For example: Optimus Prime, Apex AI"
+	// return "Gemini", nil
+	return l.getResponse(prompt)
 }
 
 func (l LLM) getNames(n int) []string {
@@ -97,8 +97,9 @@ func (l LLM) getNames(n int) []string {
 
 	for len(names) < n {
 		name, err := l.getName()
-		if err == nil {
+		if err != nil {
 			names = append(names, "Gemini")
+			continue
 		}
 
 		if !slices.Contains(names, name) {
